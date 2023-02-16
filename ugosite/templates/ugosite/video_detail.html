@@ -1,0 +1,66 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ video.title }}</title>
+{% endblock %}
+
+{% block content %}
+  <h2>{{ video.title }}</h2>
+
+  {% include "youtube-embedding.html"%}
+
+  {% if video.problem %}
+    <p class = "tex">
+      {{ video.problem.text | safe }}
+    </p>
+    {% if video.problem.source %}
+      <p class = "source"> {{ video.problem.source | safe }}
+    {% endif %}
+    <p><a href="{{ video.problem.get_absolute_url }}">問題の詳細</a></p>
+  {% endif %}
+    <p><a href="{{ editUrl }}" target="_blank">YoutubeSutudio</a></p>
+
+  <h3>Question:</h3>
+    {{ video.question | linebreaks}}
+
+  <h3>Source:{{ video.problem.source }}</h3>
+
+  <h3>Description:</h3>
+    {{ video.description | linebreaks}}
+
+  <h3>Playlist:{{ video.problem.article }}</h3>
+  <ul>
+    {% for p in video.problem.article.problem_set.all %}
+      {% for v in p.video_set.all %}
+        <li>
+          {% if v.videoId == video.videoId %}
+            {{ v }}
+          {% else %}
+            https://youtu.be/{{ v.videoId }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    {% endfor %}
+  </ul>
+
+  <h3>Terms:</h3>
+    {% for term in video.terms.all %}
+      <a href ="{{ term.get_absolute_url }}">{{ term.name }}</a>, 
+    {% endfor %}
+  </p>
+{% endblock %}
+
+{% comment %} {% block scripts %}
+  <script>
+    width = document.getElementById("file-detail").clientWidth
+    add_video("{{ video.videoId }}",width)
+  </script>
+{% endblock %} {% endcomment %}
+
+{% block scripts %}
+    <script>
+      function onYouTubePlayerAPIReady() {
+        add_video("{{ video.videoId }}",480)
+      }
+    </script>
+{% endblock %}

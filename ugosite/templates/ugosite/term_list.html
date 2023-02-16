@@ -1,0 +1,20 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> 用語一覧</title>
+{% endblock %}
+
+{% block content %}
+  <h2>用語一覧</h2>
+  {% if term_list %}
+  <ul>
+    {% for term in term_list %}
+      <li class = "linkdiv">
+        <a href="{{ term.get_absolute_url }}">{{ term }}({{ term.videos_num }})</a> 
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p>このサイトにはまだ用語がありません。</p>
+  {% endif %}
+{% endblock %}

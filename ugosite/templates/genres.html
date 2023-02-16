@@ -1,0 +1,23 @@
+<ul>
+    {% for g in genre.genre_set.all %}
+        {% if g.icon or g.problems_num %}
+        <li class ="folder linkdiv" itemid="{{ g.slug }}">
+            <a href="#">
+                {% if g.icon %}
+                {{ g.icon | safe }} 
+                {% endif %}
+                {{ g.name }} ({{ g.problems_num }})
+            </a>
+            {% include "genres.html" with genre=g %}
+        </li>
+        {% endif %}
+    {% endfor %}
+    {% for p in genre.problem_set.all %}
+        <li class="file linkdiv" itemid="{{ p.slug }}">
+            <a href="#">{{ p.name }}</a>
+            <div class ="problem-detail">
+                {% include "problem_detail.html" with problem=p%}
+            </div>
+        </li>
+    {% endfor %}
+</ul>

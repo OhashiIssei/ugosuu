@@ -1,0 +1,19 @@
+<ul>
+  {% for category in categorys %}
+    {% if category.isChapter %}
+      {% for video_genre in category.videogenre_set.all %}
+        <li class ="linkdiv" >
+          {% include "model_link.html" with model=video_genre %}
+        </li>
+      {% endfor %}
+    {% else %}
+      <li class ="folder linkdiv" itemid="{{ category.id }}">
+        <a href="#">
+          {% if category.icon %} {{ category.icon | safe }}  {% endif %}
+          {{ category.name }}
+        </a>
+        {% include "categorys.html" with categorys=category.category_set.all %}
+      </li>
+    {% endif %}
+  {% endfor %}
+</ul>

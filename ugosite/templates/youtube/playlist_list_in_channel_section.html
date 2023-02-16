@@ -1,0 +1,10 @@
+<ul>
+    {% for playlist in channel_section.playlists %}
+        <li>
+            <form action="" method="post" name="">
+                <a href="#" >{{ playlist }}</a>
+            </form>
+            {% comment %} {% include "youtube/video_list_in_playlist.html" %} {% endcomment %}
+        </li>
+    {% endfor %}
+</ul>

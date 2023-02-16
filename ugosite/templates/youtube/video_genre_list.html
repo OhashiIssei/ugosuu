@@ -1,0 +1,18 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> 単元</title>
+{% endblock %}
+
+{% block folders %}
+  <h4>単元</h4>
+  {% include "categorys.html" with categorys=category_list %}
+{% endblock %}
+
+{% block content %}
+  <div id="file-detail"></div>
+{% endblock %}
+
+{% block scripts %}
+  {% include "category_system.html" %}
+{% endblock %}

@@ -1,0 +1,7 @@
+<ul>
+    {% for playlistItem in playlist.playlistItems %}
+        <li class = "linkdiv">
+            {% include "youtube/video_link.html" with video=playlistItem.video %}
+        </li>
+    {% endfor %}
+</ul>

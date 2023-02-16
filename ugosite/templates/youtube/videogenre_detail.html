@@ -1,0 +1,23 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ videogenre.name }}</title>
+{% endblock %}
+
+{% block content %}
+    <h2> {{ videogenre.name }}</h2>
+    <ol>
+    {% for playlist in videogenre.playlist_set.all %}
+        <li>
+            <a href = "{{ playlist.get_absolute_url }}">{{ playlist.video_type }}</a>
+            <ol>
+            {% for video in playlist.videos %}
+                <li>
+                {% include "model_link.html" with model=video%}
+                </li>    
+            {% endfor %}
+            </ol>
+        </li>    
+    {% endfor %}
+    </ol>
+{% endblock %}

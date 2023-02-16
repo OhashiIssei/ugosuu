@@ -1,0 +1,48 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ video.title }}</title>
+{% endblock %}
+
+{% block content %}
+  <p>
+    「{{search_text}}」の検索結果 ({{ videos_num }}個のビデオ)
+  </p>
+  {% for video in videos_list %}
+    <h2>{{ video.title }}</h2>
+
+    <a href = "{{ video.get_absolute_url }}">
+      <img 
+        class="youtube_video_thumbnail"
+        src ={{video.thumbnail_url}}
+        alt="{{ video.title }}のサムネイル"
+      >
+    </a>
+
+      <p>
+        {{ video.genre }} {{ video.type }}
+      </p>
+
+    <p><a href="{{ video.youtube_url }}" target="_blank">Youtubeでみる</a></p>
+    <p><a href="{{ video.youtube_studio_url }}" target="_blank">Youtube Studio で編集する</a></p>
+
+    <h3>この動画を含むプレイリスト</h3>
+    <ul>
+      {% for playlist in video.playlists %}
+          <li>
+            {{ playlist }}
+          </li>
+      {% endfor %}
+    </ul> 
+  {% endfor %}
+{% endblock %}
+
+{% block scripts %}
+    <script>
+      function onYouTubePlayerAPIReady() {
+        add_video("{{ video.videoId }}",480)
+      }
+    </script>
+
+
+{% endblock %}

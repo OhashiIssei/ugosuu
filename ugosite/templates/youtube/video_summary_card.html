@@ -1,0 +1,57 @@
+<div class = "item-card with-data">
+
+    {% comment %} <a href = "{{ video.get_absolute_url }}">
+      <img 
+        class="youtube_video_thumbnail"
+        src ="{{ video.thumbnail_url }}"
+        alt="{{ video.title }}"
+        width = "500px"
+      >
+    </a> {% endcomment %}
+
+  <div class = "item-title">
+    {% include "model_link.html" with model=video %}
+  </div>
+    
+  <div class =  "item-problem">
+    <a href = "{{ video.get_absolute_url }}">
+      <p class = "tex">
+        {% if video.problem %}
+          問題．{{ video.problem | safe }}
+          {% if video.source %}
+            <p class = "source"> 
+              {% include "model_link.html" with model=video.source %}
+            </p>
+          {% endif %} 
+        {% elif video.point %}
+          要点．{{ video.point | safe }}
+        {% endif %}
+      </p>
+    </a>
+  </div>
+
+  <div class = "item-data">
+    <dl>
+      <dt>類別：</dt>
+      <dd>{% include "model_link.html" with model=video.video_type %}</dd>
+      <dt>単元：</dt>
+      <dd>{% include "model_link.html" with model=video.video_genre %}</dd>
+      <dt>プレイリスト：</dt>
+      <dd>
+        <div class = "tag-list">
+        {% for playlist in video.playlists %}
+          <div>{% include "model_link.html" with model=playlist %}</div>
+        {% endfor %} 
+        </div>
+      </dd>
+      <dt>用語：</dt>
+      <dd>
+        <div class = "tag-list">
+        {% for term in video.terms.all %}
+          <div>{% include "model_link.html" with model=term %}</div>
+        {% endfor %}  
+        </div>
+      </dd>
+    </dl>
+  </div>
+</div>

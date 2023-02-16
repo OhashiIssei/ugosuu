@@ -1,0 +1,17 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> 大学一覧 </title>
+{% endblock %}
+
+{% block content %}
+  <h2> 大学一覧 </h2>
+  
+  <ul>
+  {% for university in university_list %}
+    <li class = "linkdiv">
+      <a href="{{ university.get_absolute_url }}">{{ university }}({{ university.videos_num }})</a> 
+    </li>
+  {% endfor %}
+  </ul>
+{% endblock %}

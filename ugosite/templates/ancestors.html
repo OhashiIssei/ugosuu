@@ -1,0 +1,6 @@
+<div class="ancestors">
+    {% for a in ancestors %}
+        <a href = "{{ a.get_absolute_url }}" >{{ a.name }}＞</a>
+    {% endfor %}
+    {{ self.name }}
+</div>

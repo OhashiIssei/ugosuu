@@ -1,0 +1,22 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+<h2>{{ comment.article.title }}</h2>
+  <p>
+      {{ article.content | safe}}
+  </p>
+  <p><strong>Genre:</strong> {{ comment.article.genre.all|join:", " }}</p>
+
+  <div style="margin-left:20px;margin-top:20px">
+    <h4>Comments</h4>
+      <p><strong>{{ comment.author }}  </strong>({{ comment.date| date:"y/n/j(D) H:i:s" }}) <br> {{ comment.content }}
+      </p>
+<p>このコメントを本当に削除しますか？</p>
+
+<form action="" method="POST">
+  {% csrf_token %}
+  <input type="submit" value="Yes, delete." />
+</form>
+
+{% endblock %}

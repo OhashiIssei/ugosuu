@@ -1,0 +1,24 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> モジュール一覧</title>
+{% endblock %}
+
+{% block content %}
+  <h2>モジュール一覧</h2>
+  {% for module in module_list %}
+  <ul>
+    <li>
+      <details>
+        <summary>
+          <a href = "{{ module.get_absolute_url }}">
+            {{ module.name }}({{ module.articles_num }})
+          </a>
+        </summary>
+      {% block rightbar %}
+        {% include "modules.html" %}
+      {% endblock %}
+    </li>
+  </ul>
+  {% endfor %}
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> 動画一覧</title>
+{% endblock %}
+
+{% block content %}
+  <h2>動画一覧</h2>
+  {% if video_list %}
+    <p>
+      <ol>
+        {% for video in video_list %}
+        <li class = "linkdiv">
+          <dt><a href="{{ video.get_absolute_url }}">{{ video.title | safe }}</a>
+            <a href="{{ video.problem.get_absolute_url }}">問題のみ</a>
+            <dt>
+            
+        </li>
+        {% endfor %}
+      </ol>
+    </p>
+  {% else %}
+    <p>このサイトにはまだ動画がありません。</p>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ genre.name }}</title>
+{% endblock %}
+
+{% block subnav %}
+  <a class="ancestors" href ="{% url 'genres' %}">分野一覧＞</a>
+  {% include "ancestors.html" %}
+  
+  {% include "next-prev.html" %}
+{% endblock %}
+
+{% block content %}
+
+  <h2>
+    {{ genre.name }}
+  </h2>
+    {% include "genres.html" %}
+
+  <div style="margin-left:20px;margin-top:20px">
+    <h3>関連記事</h3>
+    <ul>
+      {% for article in genre.article_set.all  %}
+      <a href="{{ article.get_absolute_url }}"></a>
+      <li>
+        {{ article.headline }}
+        {{ article.description |truncatechars:15}}
+      </li>
+      </a>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div style="margin-left:20px;margin-top:20px">
+    {% comment %}
+    <form action="{% url 'problem-edit' genre.slug %}" method="post" >
+    <input name="submmit" type="submit" value="保存">
+    {% endcomment %}
+    <h3>関連問題</h3>
+    <ul>
+      {% for descendant in genre.descendants %}
+        {% for problem in descendant.problem_set.all %}
+        <li class = "linkdiv">
+          <a href="{{ problem.get_absolute_url }}">
+          {{ problem.name }}
+          {% if problem.video_set.first %}
+            ：解説動画あり
+          {% endif %}
+            {% comment %}
+              この動画のジャンルを選んでください。<br>
+              {{ problem.genres.first }}から
+              {% for child in genre.children %}        
+                {% csrf_token %}
+                <input name = "{{ problem.slug }}" type="checkbox" value="{{ child.slug }}">
+                {{ child.name }}
+              {% endfor %}
+            {% endcomment %}
+          <p class="tex">{{ problem.text | safe }}</p>
+          </a>
+        </li>
+        {% endfor %}
+      {% endfor %}
+    </ul>
+    {% comment %}
+    </form>
+    {% endcomment %}
+  </div>
+{% endblock %}
+
+{% block rightbar %}
+  {% if genre.parent_genre %}
+  <h4>{{ genre.parent_genre }}</h4>
+  {% include "genres.html" with genre=genre.parent_genre %}
+  {% else %}
+  <h4><a href="{% url 'genres' %}">分野一覧</a></h4>
+  {% endif %}
+{% endblock %}

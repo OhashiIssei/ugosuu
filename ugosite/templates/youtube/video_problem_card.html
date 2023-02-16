@@ -1,0 +1,32 @@
+<div class = "item-card">
+
+    {% comment %} <a href = "{{ video.get_absolute_url }}">
+      <img 
+        class="youtube_video_thumbnail"
+        src ="{{ video.thumbnail_url }}"
+        alt="{{ video.title }}"
+        width = "500px"
+      >
+    </a> {% endcomment %}
+
+    <div class = "item-title">
+      {% include "model_link.html" with model=video %}
+    </div>
+    
+    <div class = "item-problem">
+      <a href = "{{ video.get_absolute_url }}">
+        <p class = "tex">
+          {% if video.problem %}
+            問題．{{ video.problem | safe }}
+            {% if video.source %}
+              <p class = "source"> 
+                {% include "model_link.html" with model=video.source %}
+              </p>
+            {% endif %} 
+          {% elif video.point %}
+            要点．{{ video.point | safe }}
+          {% endif %}
+        </p>
+      </a>
+    </div>
+</div>

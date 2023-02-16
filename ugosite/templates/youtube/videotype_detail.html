@@ -1,0 +1,18 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ videotype.name }}</title>
+{% endblock %}
+
+{% block content %}
+    <h2> {{ videotype.name }}</h2>
+
+    <ul>
+    {% for playlist in videotype.playlist_set.all %}
+        <li>
+            <a href = "{{ playlist.get_absolute_url }}">{{ playlist.video_genre }}</a>
+            {% include "youtube/video_list_in_playlist.html" %}
+        </li>    
+    {% endfor %}
+    </ul>
+{% endblock %}

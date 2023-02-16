@@ -1,0 +1,25 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> Notes</title>
+{% endblock %}
+
+{% block folders %}
+  <h4>Folders</h4>
+  <ul>
+    {% for folder in folder_list %}
+    <li class ="folder linkdiv" name="{{ folder.id }}">
+      <a href="#">{{ folder.name }}({{ folder.notes_num }})</a>
+      {% include "folders.html" %}
+    </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+
+{% block content %}
+  <div id="file-detail"></div>
+{% endblock %}
+
+{% block scripts %}
+  {% include "folder_system.html" %}
+{% endblock %}

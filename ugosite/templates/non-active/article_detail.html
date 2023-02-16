@@ -1,0 +1,101 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ article.name }}</title>
+{% endblock %}
+
+{% block subnav %}
+  <a class="ancestors" href ="{% url 'modules' %}">モージュール一覧＞</a>
+  {% include "ancestors.html" %}
+  {% include "next-prev.html" %}
+{% endblock %}
+
+{% block content %}
+
+  <h2>{{ article.name }}</h2>
+
+  <p>
+  {{ article.description | safe}}
+  </p>
+  
+  {% if template %}
+  <div class ="tex">{% include html %}</div>
+  {% endif %}
+
+  {% if article.modules.first.genres.first.ancestors %}
+  <p><strong>Genres:</strong> 
+    {% for ancestor in article.modules.first.genres.first.ancestors %}
+        <a href ="{{ ancestor.get_absolute_url }}">{{ ancestor.name }}＞</a>
+    {% endfor %}
+  </p>
+  {% endif %}
+
+  {% if article.terms.all %}
+  <p><strong>Terms:</strong> 
+    {% for term in article.terms.all %}
+      <a href ="{{ term.get_absolute_url }}">{{ term.name }}</a>, 
+    {% endfor %}
+  </p>
+  {% endif %}
+
+  {% if article.problems.all %}
+  <p><strong>確認問題</strong> 
+    <ol>
+    {% for problem in article.problems.all %}
+      <li class = "linkdiv"><a href ="{{ problem.get_absolute_url }}">{{ problem.name }}</a>
+        <p class="tex">{{ problem.text | safe }}</p>
+        {% if problem.answers %}
+        <a href ="{{ problem.get_absolute_url }}">解答例</a>
+        {% endif %}
+        {% if problem.videos_set %}
+        <a href ="{{ problem.videos_set.first.get_absolute_url }}">解答例</a>
+        {% endif %}
+      </li>
+    {% endfor %}
+    </ol>
+  </p>
+  {% endif %}
+
+
+
+
+  {% comment %}
+    <a href="{% url 'comment-create' article.id %}">コメントを追加する</a>
+  {% endcomment %}
+  
+  {% if article.comment_set.all %}
+  <div style="margin-left:20px;margin-top:20px">
+    <h4>Comments</h4>
+    <ul>
+      {% for comment in article.comment_set.all %}
+        <li>
+          <p>
+            {% comment %}
+              {% if comment.author.articleauthor %}
+                <a href="{{ comment.author.articleauthor.get_absolute_url }}">
+                  {{ comment.author }}
+                </a>
+              {% else %}
+                {{ comment.author }}
+              {% endif %}
+              - {{ comment.date|date:"y/n/j(D) H:i:s" }} 
+              {% if user.id == comment.author.id %}
+                <a href="{% url 'comment-delete' comment.id %}">削除</a>
+                <a href="{% url 'comment-update' comment.id %}">編集</a> <br> 
+              {% endif %}
+              {{ comment.content | linebreaks}}
+            {% endcomment %}
+          </p>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+{% endblock %}
+
+{% block rightbar %}
+  {% if module %}
+      <h4>{{ module }}</h4>
+    {% include "modules.html" %}
+  {% endif %}
+{% endblock %}

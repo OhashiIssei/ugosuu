@@ -1,0 +1,44 @@
+{% extends "base_generic.html" %}
+
+
+{% block title %}
+  <title> {{ term.name }}</title>
+{% endblock %}
+
+{% block content %}
+    <h2>{{ term }}</h2>
+  
+    <p>
+        {{ term.description | safe}}
+    </p>
+    
+    <div style="margin-left:20px;margin-top:20px">
+      <h3>関連記事</h3>
+      <ul>
+        {% for article in term.article_set.all  %}
+        <li>
+          <a href="{{ article.get_absolute_url }}">{{ article.headline }}</a>
+          {{ article.description |truncatechars:15}}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div style="margin-left:20px;margin-top:20px">
+      <h3>関連動画</h3>
+      <ul>
+        {% for video in term.video_set.all  %}
+        <li>
+          {% include "youtube/video_summary_card.html" %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div style="margin-left:20px;margin-top:20px">
+      <h3>関連単語</h3>
+        {% for t in term.related_terms.all  %}
+          <a href="{{ t.get_absolute_url }}">{{ t.name }}</a>, 
+        {% endfor %}
+    </div>
+{% endblock %}

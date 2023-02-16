@@ -1,0 +1,29 @@
+
+  <h2>{{ problem.name }}</h2>
+
+  <!-- <h3>問題</h3> -->
+  {% if problem.source %}
+    <p class = "source">{{ problem.source | safe }}</p>
+  {% endif %}
+    <p class = "tex"> {{ problem.text | safe }}</p>
+  
+  {% if problem.answer %}
+  <details><summary><strong>解答例</strong></summary>
+      <p class = "tex">{{ problem.answer | safe }}</p>
+  {% endif %}
+
+  {% if problem.video_set.first %}
+  <details><summary><strong>解説動画</strong></summary>
+    {% include "youtube-embedding.html" with video=problem.video_set.first %}
+  </details>
+  {% endif %}
+
+  {% if problem.article_set.all %}
+  <p><strong>Articles:</strong> 
+    {% for article in problem.article_set.all  %}
+      <a href="{{ article.get_absolute_url }}">{{ article.name }}</a>，
+    {% endfor %}
+  </p>
+  {% endif %}
+
+　<a href = "{{ problem.get_admin_url }}">[adminで編集]</a>

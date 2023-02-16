@@ -1,0 +1,27 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> プレイリスト一覧</title>
+{% endblock %}
+
+{% block content %}
+  <h2>プレイリスト一覧</h2>
+  {% if playlist_list %}
+    <p>
+      <ol>
+        {% for playlist in playlist_list %}
+        <li class = "linkdiv">
+          <dt>
+            <a href="{{ playlist.get_absolute_url }}">
+            {{ playlist.title | safe }} ({{ playlist.videos_num }})
+            </a>
+            <p>{{ playlist.descriprion | safe }}</p>
+          </dt>
+        </li>
+        {% endfor %}
+      </ol>
+    </p>
+  {% else %}
+    <p>このサイトにはまだプレイリストがありません。</p>
+  {% endif %}
+{% endblock %}

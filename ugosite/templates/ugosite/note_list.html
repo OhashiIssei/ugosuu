@@ -1,0 +1,18 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> Note一覧 </title>
+{% endblock %}
+
+{% block content %}
+<h2> Notes </h2>
+<ul>
+  {% for folder in folder_list %}
+    <li>
+      <details><summary><a href="{% url 'folder-detail' folder.id %}">{{ folder.name }}</a></summary>
+      {% include "folders.html"%}
+      </details>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

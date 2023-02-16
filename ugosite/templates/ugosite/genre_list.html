@@ -1,0 +1,25 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> 分野別問題集</title>
+{% endblock %}
+
+{% block folders %}
+  <h4>分野別問題集</h4>
+  <ul>
+    {% for genre in genre_list %}
+    <li class ="folder linkdiv" name="{{ genre.slug }}">
+      <a href="#">{{ genre.name }}({{ genre.problems_num }})</a>
+      {% include "genres.html" %}
+    </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+
+{% block content %}
+  <div id="file-detail"></div>
+{% endblock %}
+
+{% block scripts %}
+  {% include "folder_system.html" %}
+{% endblock %}

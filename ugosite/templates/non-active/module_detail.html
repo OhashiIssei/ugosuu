@@ -1,0 +1,49 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ module.name }}</title>
+{% endblock %}
+
+
+{% block subnav %}
+  <a class="ancestors" href ="{% url 'modules' %}">モージュール一覧＞</a>
+  {% include "ancestors.html" %}
+  {% include "next-prev.html" %}
+{% endblock %}
+
+
+
+{% block content %}
+    <h2>{{ module.name }}</h2>
+  
+    <p>
+        {{module.description | safe}}
+    </p>
+    
+    {% if module.article_set.all %}
+    <div style="margin-left:20px;margin-top:20px">
+      <h3>このモジュールに含まれる記事</h3>
+        <ol>
+          {% for article in module.article_set.all  %}
+          <li class = "linkdiv">
+            <a href="{{ article.get_absolute_url }}">{{ article.name }}</a>
+            <br>
+            <p class="description">
+              　　-{{ article.description }} 
+            </p>
+          </li>
+          {% endfor %}
+        </ol>
+      </div>
+    {% else %}
+      {% include "modules.html" %}
+    {% endif %}
+{% endblock %}
+
+
+{% block rightbar %}
+{% if module.parent_module %}
+  <h4>{{ module.parent_module }}</h4>
+  {% include "modules.html" with module=module.parent_module %}
+{% endif %}
+{% endblock %}

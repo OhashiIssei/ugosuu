@@ -1,0 +1,45 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ video.title }}</title>
+{% endblock %}
+
+{% block content %}
+  <h2>{{ video.title }}</h2>
+
+  {% include "youtube-embedding.html" %}
+
+  {% include "youtube/video_summary_card.html"%}
+
+  {% comment %} {% if video.related_videos %}
+    
+  <h3>関連動画</h3>
+
+  <ul>
+    {% for related_video in video.related_videos %}
+    <li>
+      {% include "youtube/video_problem_card.html" with video=related_video %} 
+    </li>
+    {% endfor %}
+  </ul>
+
+  {% endif %} {% endcomment %}
+
+  <p><a href="{{ video.youtube_url }}" target="_blank">Youtubeでみる</a></p>
+  <p><a href="{{ video.youtube_studio_url }}" target="_blank">Youtube Studio で編集する</a></p>
+    
+  {% comment %} <h4>description</h4>
+    {{ video.description | linebreaks}} {% endcomment %}
+{% endblock %}
+
+{% block folders %}
+  {% include "youtube/prev_and_next_in_playlist.html" %}
+{% endblock %}
+
+{% block scripts %}
+    <script>
+      function onYouTubePlayerAPIReady() {
+        add_video("{{ video.videoId }}",480)
+      }
+    </script>
+{% endblock %}

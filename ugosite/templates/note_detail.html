@@ -1,0 +1,7 @@
+<p class = "date"  id="date">
+  {{ note.created_date |date:"y/n/j(D) H:i:s"}}
+</p>
+
+{% if note.text %}
+  {{ note.text  | safe }}  
+{% endif %}

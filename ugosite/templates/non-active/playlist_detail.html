@@ -1,0 +1,26 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ playlist.title}}</title>
+{% endblock %}
+
+
+{% block content %}
+    <h2>{{ playlist.title }}</h2>
+  
+    <p>
+        {{ playlist.description | safe }}
+    </p>
+    
+    <div style="margin-left:20px;margin-top:20px">
+      <h3>このプレイリストに含まれる動画</h3>
+        <ol>
+          {% for video in playlist.videos.all  %}
+          <li>
+            <a href="{{ video.get_absolute_url }}">{{ video.name }}</a>
+            <p>{{ video.problems.first.text | safe}}</p>
+          </li>
+          {% endfor %}
+        </ol>
+      </div>
+{% endblock %}

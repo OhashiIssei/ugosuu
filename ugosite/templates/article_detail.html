@@ -1,0 +1,47 @@
+<h2>{{ article.name }}</h2>
+
+<p>
+{{ article.description | safe}}
+</p>
+
+<p>
+{{ article.content | safe}}
+</p>
+
+
+{% if template %}
+<div class ="tex">{% include html %}</div>
+{% endif %}
+
+{% comment %}
+
+  {% if article.modules.first.genres.first.ancestors %}
+  <p><strong>Genres:</strong> 
+    {% for ancestor in article.modules.first.genres.first.ancestors %}
+        <a href ="{{ ancestor.get_absolute_url }}">{{ ancestor.name }}＞</a>
+    {% endfor %}
+  </p>
+  {% endif %}
+
+  {% if article.terms.all %}
+  <p><strong>Terms:</strong> 
+    {% for term in article.terms.all %}
+      <a href ="{{ term.get_absolute_url }}">{{ term.name }}</a>, 
+    {% endfor %}
+  </p>
+  {% endif %}
+
+{% endcomment %}
+
+{% if article.problem_set.all %}
+<ol class="problems">
+  {% for problem in article.problem_set.all %}
+  <li class="linkdiv problem" itemid="{{ problem.id }}">
+    <a href ="#{{ problem.id }}">{{ problem.name }}</a>
+    <div class="text tex">
+      <a href = "{{ problem.video_set.first.get_absolute_url }}">{{ problem.text | safe }}</a>
+    </div>
+  </li>
+  {% endfor %}
+</ol>
+{% endif %}

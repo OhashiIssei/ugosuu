@@ -1,0 +1,39 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ video.title }}</title>
+{% endblock %}
+
+{% block folders %}
+  <h2> はやくち解説を検索 </h2>
+
+  <div class="search-method">
+    <div><a href="{% url 'categorys' %}">単元から</a></div>
+    <div><a href="{% url 'universitys' %}">大学から</a></div>
+    <div><a href="{% url 'terms' %}">用語から</a></div>
+  </div>
+
+  {% comment %} <form action="" method="post" id="form">
+    {% csrf_token %}
+    <table> 
+      {{ form.as_table }}
+    </table>
+    <input type="submit" value="検索">
+  </form> {% endcomment %}
+
+  {% include "youtube/section_list_in_channel.html" %}
+  
+{% endblock %}
+
+{% block content %}
+  <p>
+    検索結果 ({{ videos_num }}個のビデオ)
+  </p>
+  <ul>
+  {% for video in videos_list %}
+    <li>
+    {% include "youtube/video_summary_card.html" %}
+    </li>
+  {% endfor %}
+  </ul>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ problem.name }}</title>
+{% endblock %}
+
+{% block subnav %}
+  <a class="ancestors" href ="{% url 'genres' %}">分野一覧＞</a>
+  {% include "ancestors.html" %}
+  
+  {% include "next-prev.html" %}
+{% endblock %}
+
+{% block content %}
+  <h2>{{ problem.name }}</h2>
+
+  <!-- <h3>問題</h3> -->
+  {% if problem.source %}
+    <p class = "source">{{ problem.source | safe }}</p>
+  {% endif %}
+    <p class = "tex"> {{ problem.text | safe }}</p>
+  
+  {% if problem.answer %}
+  <details><summary><strong>解答例</strong></summary>
+      <p class = "tex">{{ problem.answer | safe }}</p>
+  {% endif %}
+
+  {% if problem.video_set.first %}
+  <details><summary><strong>解説動画</strong></summary>
+    {% include "youtube-embedding.html" with video=problem.video_set.first %}
+  </details>
+  {% endif %}
+
+  {% if problem.article_set.all %}
+  <p><strong>Articles:</strong> 
+    {% for article in problem.article_set.all  %}
+      <a href="{{ article.get_absolute_url }}">{{ article.headline }}</a>
+      {{ article.description | striptags }},
+    {% endfor %}
+  </p>
+  {% endif %}
+
+  　<a href = "{{ problem.get_admin_url }}">[adminで編集]</a>
+    
+{% endblock %}
+
+{% block rightbar %}
+  <h4>{{ problem.genres.first }}</h4>
+  {% include "genres.html" with genre=problem.genres.first %}
+
+  <script>
+    const headerHeight = document.querySelector("header").getBoundingClientRect().height
+    const subnavHeight = document.querySelector(".subnav").getBoundingClientRect().height;
+    const block = document.getElementById("{{ problem.slug }}")
+    if(block){
+      block.style.border = "1px solid #feffbd"
+      const Top = block.getBoundingClientRect().top;
+      const mokuji = document.getElementById("mokuji")
+      const mokujiHeight = mokuji.getBoundingClientRect().height;
+      mokuji.scrollTo({
+        top: Top-headerHeight-subnavHeight-window.innerHeight/3,
+        // behavior: 'smooth'
+      });
+    }
+  </script>
+{% endblock %}

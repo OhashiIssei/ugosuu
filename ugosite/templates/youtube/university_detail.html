@@ -1,0 +1,20 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ university }}</title>
+{% endblock %}
+
+{% block content %}
+    <h2>
+        {{ university }}
+    </h2>
+    <ol>
+    {% for source in university.source_set.all %}
+        {% for video in source.video_set.all %}
+            <li><br>
+            {% include "youtube/video_problem_card.html" %}
+            </li>
+        {% endfor %}
+    {% endfor %}
+    </ol>
+{% endblock %}

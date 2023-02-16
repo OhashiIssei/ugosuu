@@ -1,0 +1,54 @@
+  <div class = "item-card">
+
+      {% comment %} <a href = "{{ video.get_absolute_url }}">
+        <img 
+          class="youtube_video_thumbnail"
+          src ="{{ video.thumbnail_url }}"
+          alt="{{ video.title }}"
+          width = "500px"
+        >
+      </a> {% endcomment %}
+
+    <ul>
+      <li>
+        {% include "model_link.html" with model=video %}
+      </li>
+      
+      <li>
+        <a href = "{{ video.get_absolute_url }}">
+          <p class = "tex">
+            {% if video.problem %}
+              問題．{{ video.problem | safe }}
+              {% if video.source %}
+                <p class = "source"> 
+                  {% include "model_link.html" with model=video.source %}
+                </p>
+              {% endif %} 
+            {% elif video.point %}
+              要点．{{ video.point | safe }}
+            {% endif %}
+          </p>
+        </a>
+      </li>
+
+      <li>
+        <div class="video-data">
+          <ul>
+            <li>類別：{% include "model_link.html" with model=video.video_type %}</li>
+            <li>単元：{% include "model_link.html" with model=video.video_genre %}</li>
+            <li>用語：
+            {% for term in video.terms.all %}
+              {% include "model_link.html" with model=term %}
+            {% endfor %}  
+            </li>
+            <li>プレイリスト：
+              {% for playlist in video.playlists %}
+                {% include "model_link.html" with model=playlist %}
+              {% endfor %} 
+            </li>
+          </ul>
+        </div>
+      </li>
+    <ul>
+  </div>
+</a>

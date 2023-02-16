@@ -1,0 +1,19 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ channelsection.title }}</title>
+{% endblock %}
+
+{% comment %} {% block folders %}
+{% endblock %} {% endcomment %}
+
+{% block content %}
+    <h2>{{ channelsection.title }}</h2>
+    <ul>
+    {% for playlist in channelsection.playlists.all %}
+      <li>  
+        {% include "youtube/playlist_summary.html"%}
+      </li>
+    {% endfor %}
+    </ul>
+{% endblock %}

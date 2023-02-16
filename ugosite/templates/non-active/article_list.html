@@ -1,0 +1,20 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> 記事一覧</title>
+{% endblock %}
+
+{% block content %}
+  <h2>記事一覧</h2>
+  {% if article_list %}
+  <ul>
+    {% for article in article_list %}
+      <li class = "linkdiv">
+        - {{article.created_date|date:"y/n/j(D) H:i:s"}} : <a href="{{ article.get_absolute_url }}">{{ article.name }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p>このサイトにはまだ記事がありません。</p>
+  {% endif %}
+{% endblock %}

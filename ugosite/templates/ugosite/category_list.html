@@ -1,0 +1,17 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title>単元から</title>
+{% endblock %}
+
+
+
+{% block content %}
+  <h4>単元から</h4>
+  {% include "categorys.html" with categorys=category_list %}
+{% endblock %}
+
+{% block scripts %}
+  {% include "category_system.html" %}
+{% endblock %}
+

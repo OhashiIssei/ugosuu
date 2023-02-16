@@ -1,0 +1,51 @@
+/* || リンクのデザイン */
+a{
+    text-decoration: none;
+    color: inherit; 
+}
+
+/* a:link{
+    color: #80ac7d; 
+}
+
+a:visited{
+    color: #80ac7d; 
+} */
+
+a:hover,a:focus{
+    text-decoration: none;
+    color:#ffffff;
+}
+
+a:active{
+    /* background-color: #80ac7d;  */
+    color:#ffffff;
+}
+
+a{
+    background-image: linear-gradient(to right, rgba(208, 208, 208, 0) 50%, #a0bc9e71 50%);
+    background-position: 0 0;
+    background-size: 200% auto;
+    /* transition: 0.1s; */
+}
+
+a:hover,a:focus{
+    background-position: -100% 0;
+}
+
+.table,.linkdiv .tex,.linkdiv .small-question,.linkdiv .description{
+    color:hsl(0, 0%, 78%)
+}
+
+
+.linkdiv a{
+    display: block;
+    /* position: absolute; */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+  

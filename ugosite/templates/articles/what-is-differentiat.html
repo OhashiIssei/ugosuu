@@ -1,0 +1,59 @@
+<h3>実は「速さ」には2種類ある！</h3>
+
+<p>
+    例えば、物が動くときの「<a href="">速さ</a>」について考えてみましょう。
+    速さとは、単位時間あたりの移動距離の割合のことです。
+    100mを5秒で走るウサインボルトの速さは0.05秒/m と表現できます。
+</p>
+<p>
+    しかし、ここでいう「速さ」は、あくまで「<a href="{% url 'term-detail' 'average-rate-of-chan' %}">平均の速さ</a>」と呼ばれるべきです。
+    ウサインボルトは、スタートの合図の直後から次第に加速していき、コースの後半でトップスピードになっています。
+    ということは、いろんな「速さ」で移動しているけど、最初と最後だけを見れば、これくらいの速さだよね？ということです。
+</p>
+<p>
+    一般に、関数 $f(x)$ に対して、$x$ が $a$ から $b$ まで変化するときの $f(x)$ の変化率
+    \[\frac{f(\class{b}{b})-f(\class{a}{a})}{\class{b}{b}-\class{a}{a}} \]
+    のことを<a href="{% url 'term-detail' 'average-rate-of-chan' %}">平均変化率</a>と呼びます。
+</p>
+<p>
+    これに対し、一方、私たちの感覚としては、「その瞬間,瞬間における速さ」というのが確かにありますよね？
+    だからこそ、「次第に速くなる」とか「加速する」というような表現があるわけです。
+    しかし、瞬間における速さ、という概念は厄介です。
+</p>
+<h3>微分の定義を式で表す</h3>
+<p>     
+    \[ f'(x)=\lim_{h\rightarrow 0 }\frac{f(x+h)-f(x)}{h} \]
+    ここで、<a href="#">$\displaystyle\lim_{h\rightarrow 0 }$</a>〇〇とは、
+    \[ \ h\ を限りなく0に近づけたときに、〇〇が限りなく近づく値\]
+    のことである。
+    \[ \frac{ f(x+\class{h}{h}) - f(x) }{ \class{h}{h} } \]
+</p>
+
+
+<img src="/media/1.svg" alt="note" width="100%">
+
+<script>
+    function kirisute(num,kurai){
+        return Math.floor( num * 10**kurai ) / 10**kurai ;
+    }
+
+    const tex = document.querySelector("#tex")
+
+    const a = document.querySelector(".a")
+    const b = document.querySelector(".b")
+    
+    window.addEventListener("scroll",function(){
+        // heikin.textContent = ""
+        // MathJax.Hub.Typeset(tex)
+    })
+    
+    const h = document.querySelector(".h")
+    console.log(h)
+    
+    // heikin.textContent = "\\[\\frac{f(b)-f("+window.scrollY+")}{b-"+window.scrollY+"} \\]"
+    window.addEventListener("scroll",function(){
+        h.textContent = kirisute(1/(1+window.scrollY),4)
+        // MathJax.Hub.Typeset(tex)
+    })    
+</script>
+

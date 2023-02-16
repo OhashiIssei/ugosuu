@@ -1,0 +1,72 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ video.title }}</title>
+{% endblock %}
+
+{% block content %}
+  <h2>{{ video.title }}</h2>
+
+  {% include "randomvideo-embedding.html"%}
+
+  {% if video.problem %}
+  <h3>問題</h3>
+    <p class = "tex">
+      {{ video.problem | safe }}
+    </p>
+    {% if video.source %}
+      <p class = "source"> {{ video.source | safe }}
+    {% endif %} 
+  {% endif %}
+  <p><a href="{{ video.youtube_url }}" target="_blank">Youtube</a></p>
+
+  <h3>この動画について</h3>
+    {% comment %} {{ video.description | linebreaks}} {% endcomment %}
+
+  {% comment %} <h3>関連問題</h3>
+    <ul>
+      {% for v in video.related %}
+       <li>{{ v | linebreaks }}</li>
+      {% endfor %}
+    </ul>  {% endcomment %}
+    
+  <h3>description</h3>
+    {{ video.yotube_video.description | linebreaks}}
+
+
+  {% comment %} <h3>Playlist:{{ video.problem.article }}</h3>
+  <ul>
+    {% for p in video.problem.article.problem_set.all %}
+      {% for v in p.video_set.all %}
+        <li>
+          {% if v.videoId == video.videoId %}
+            {{ v }}
+          {% else %}
+            https://youtu.be/{{ v.videoId }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    {% endfor %}
+  </ul>  {% endcomment %}
+
+  {% comment %} <h3>Terms:</h3>
+    {% for term in video.terms.all %}
+      <a href ="{{ term.get_absolute_url }}">{{ term.name }}</a>, 
+    {% endfor %}
+  </p> {% endcomment %}
+{% endblock %}
+
+{% comment %} {% block scripts %}
+  <script>
+    width = document.getElementById("file-detail").clientWidth
+    add_video("{{ video.videoId }}",width)
+  </script>
+{% endblock %} {% endcomment %}
+
+{% block scripts %}
+    <script>
+      function onYouTubePlayerAPIReady() {
+        add_video("{{ video.videoId }}",480)
+      }
+    </script>
+{% endblock %}

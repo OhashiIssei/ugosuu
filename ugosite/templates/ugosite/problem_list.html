@@ -1,0 +1,22 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> 問題一覧</title>
+{% endblock %}
+
+{% block content %}
+  <h2>問題一覧</h2>
+  {% if problem_list %}
+  <ul>
+    {% for problem in problem_list %}
+      <li class = "linkdiv">
+       <a href="{{ problem.get_absolute_url }}">{{ problem.name | safe}}</a>
+       　<a href = "{{ problem.get_admin_url }}">[adminで編集]</a>
+       <p class="tex"> {{ problem.text | safe }}</p>
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p>このサイトにはまだ問題がありません。</p>
+  {% endif %}
+{% endblock %}

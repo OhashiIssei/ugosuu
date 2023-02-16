@@ -1,0 +1,24 @@
+<div id="box" class="jxgbox" style="width:500px;height:500px;"></div>
+
+
+
+<script type="text/javascript">
+    var brd = JXG.JSXGraph.initBoard('box', {boundingbox:[-2,5,5,-2]});
+    var A  = brd.create('point', [0,0]),
+        B  = brd.create('point', [2,0]),
+        C  = brd.create('point', [1,2]),
+
+        a1 = brd.create('segment', [A,B], {name:'a_1', withLabel:true, label:{position:'top'} }),
+        a2 = brd.create('segment', [B,C], {name:'a_2', withLabel:true, label:{position:'top'} }),
+        a3 = brd.create('segment', [C,A], {name:'a_3', withLabel:true, label:{position:'top'} })
+
+    function s(A,B,C){
+        return (C.Dist(A)-B.Dist(C)+A.Dist(B))/2.0
+    }
+    var c1 = brd.create('circle', 
+                [A, ()=>s(A,B,C)]);
+        c2 = brd.create('circle', 
+                [B, ()=>s(B,C,A)]);
+        c3 = brd.create('circle', 
+                [C, ()=>s(C,A,B)]);
+</script>

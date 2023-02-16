@@ -1,0 +1,8 @@
+<ul>
+    {% for channel_section in channel.channel_sections %}
+        <li>
+            {{ channel_section }}
+            {% include "youtube/playlist_list_in_channel_section.html" %}
+        </li>
+    {% endfor %}
+</ul>

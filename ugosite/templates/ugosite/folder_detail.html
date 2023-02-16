@@ -1,0 +1,28 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ folder.name }} </title>
+{% endblock %}
+
+{% block subnav %}
+  <a class="ancestors" href ="{% url 'notes' %}">Notes＞</a>
+  {% include "ancestors.html" %}
+  {% include "next-prev.html" %}
+{% endblock %}
+
+{% block content %}
+  <h2>
+    {{ folder.name }}
+  </h2>
+  {% include "folders.html" %}
+{% endblock %}
+
+
+{% block rightbar %}
+  {% if folder.folders.first %}
+    <h3><a href = "{{  folder.folders.first.get_absolute_url }}" >{{ folder.folders.first }}</a></h3>
+    {% include "folders.html" with folder=folder.folders.first %}
+  {% else %}
+    <h3><a href = "{% url 'notes' %}" >Notes</a></h3>
+  {% endif %}
+{% endblock %}

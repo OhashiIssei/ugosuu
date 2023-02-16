@@ -1,0 +1,30 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ playlist.title }}</title>
+{% endblock %}
+
+{% block folders %}
+    {% if playlist.channelsection_set.all %}
+        <ul>
+        {% for channelSection in playlist.channelsection_set.all %}
+            <li>
+                <a href = "{{ channelSection.get_absolute_url }}">
+                    {{ channelSection }}
+                </a>
+            </li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <h2>{{ playlist.title }}</h2>
+    <ol>
+    {% for playlistItem in playlist.playlistitem_set.all %}
+        <li>
+        {% include "youtube/video_problem_card.html" with video=playlistItem.video %}
+        </li>
+    {% endfor %}
+    </ol>
+{% endblock %}

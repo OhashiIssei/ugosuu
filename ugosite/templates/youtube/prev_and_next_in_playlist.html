@@ -1,0 +1,15 @@
+{% for playlistItem in video.playlistitem_set.all %}
+<p></p>
+<ul> 「{% include "model_link.html" with model=playlistItem.playlist %}」
+    {% if playlistItem.prev %}
+        <li> 前の動画↓<br>
+        {% include "youtube/video_problem_card.html" with video=playlistItem.prev.video %}
+        </li>
+    {% endif %}
+    {% if playlistItem.next %}
+        <li> 次の動画↓<br>
+        {% include "youtube/video_problem_card.html" with video=playlistItem.next.video %}
+        </li>
+    {% endif %}
+</ul>  
+{% endfor %}

@@ -1,0 +1,46 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> Ugosuuにようこそ</title>
+{% endblock %}
+
+
+{% block content %}
+  <h2>Ugosuuにようこそ</h2>
+  <p>ようこそ、Ugosuuへ。このウェブサイトは<em>大橋いっせい</em>によって開発されています!</p>
+  <h3>現在の状況</h3>
+  <p>このサイトは次のような記録を持っています：</p>
+  <ul>
+    <li><strong>カテゴリ:</strong> {{ num_categorys }}</li>
+    <li><strong>記事:</strong> {{ num_articles }}</li>
+    <li><strong>問題(入試問題):</strong> {{ num_problems }} ({{ num_problems_of_univ }})</li>
+    <li><strong>動画:</strong> {{ num_videos }}</li>
+    <li><strong>用語:</strong> {{ num_terms }}</li>
+  </ul>
+
+  <p>
+    あなたがこのページを訪れたのは、{{ num_visits }}回目です
+  </p>
+
+  <h2>新着記事</h2>
+  {% if article_list %}
+  <ul>
+    {% for article in article_list %}
+      <li>
+        - {{article.created_date|date:"y/n/j(D) H:i:s"}} : <a href="{{ article.get_absolute_url }}">{{ article.name }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p>このサイトにはまだ記事がありません。</p>
+  {% endif %}
+
+  <h2>カテゴリ</h2>
+  <ul>
+    {% for category in category_list %}
+      <li>
+        <a href="{{ category.get_absolute_url }}">{{ category.name }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

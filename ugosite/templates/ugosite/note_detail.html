@@ -1,0 +1,44 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> {{ note.name }} </title>
+{% endblock %}
+
+
+{% block subnav %}
+  <a class="ancestors" href ="{% url 'notes' %}">Notes＞</a>
+  {% include "ancestors.html" %}
+  {% include "next-prev.html" %}
+{% endblock %}
+
+{% block content %}
+  <p class = "date"  id="date">
+  {{ note.created_date |date:"y/n/j(D) H:i:s"}}
+  </p>
+
+  {% if note.text %}
+    {{ note.text  | safe }}  
+  {% endif %}
+
+{% endblock %}
+
+{% block rightbar %}
+  <h4>{{ folder }}</h4>
+  {% include "folders.html" %}
+
+  <script>
+    const headerHeight = document.querySelector("header").getBoundingClientRect().height
+    const subnavHeight = document.querySelector(".subnav").getBoundingClientRect().height;
+    const noteBlock = document.getElementById("{{ note.id }}")
+    if(noteBlock){
+      noteBlock.style.border = "1px solid #feffbd"
+      const Top = noteBlock.getBoundingClientRect().top;
+      const mokuji = document.getElementById("mokuji")
+      const mokujiHeight = mokuji.getBoundingClientRect().height;
+      mokuji.scrollTo({
+        top: Top-headerHeight-subnavHeight-window.innerHeight/3,
+        // behavior: 'smooth'
+      });
+    }
+  </script>
+{% endblock %}

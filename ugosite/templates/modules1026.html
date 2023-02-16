@@ -1,0 +1,28 @@
+
+<ul>
+  {% for m in module.module_set.all %}
+    {% if m.articles_num %}
+    <li>
+        <details>
+          <summary>
+            <a href="{% url 'module-detail' m.slug %}">
+            {{ m.name }}({{ m.articles_num }})
+            </a>
+          </summary>
+          {% include "modules.html" with module=m %}
+        </details>
+    </li>
+    {% endif %}
+  {% endfor %}
+
+  {% for article in module.article_set.all %}
+    <li class = "linkdiv">
+      <a href="{% url 'article-detail' article.slug %}">
+        <strong>{{ article.name }}</strong>
+      <p class="description">
+        　　-{{ article.description }} 
+      </p>
+      </a>
+    </li>
+  {% endfor %}
+</ul>

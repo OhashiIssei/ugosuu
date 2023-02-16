@@ -1,0 +1,18 @@
+<ul>
+  {% for g in folder.folder_set.all %}
+      {% if g.notes_num %}
+      <li class ="folder linkdiv" itemid="{{ g.id }}">
+          <a href="#">{{ g.name }} ({{ g.notes_num }})</a>
+          {% include "folders.html" with folder=g %}
+      </li>
+      {% endif %}
+  {% endfor %}
+  {% for p in folder.note_set.all %}
+      <li class="file linkdiv" itemid="{{ p.id }}">
+          <a href="#">{{ p.name }}</a>
+          <div>
+              {% include "note_detail.html" with note=p%}
+          </div>
+      </li>
+  {% endfor %}
+</ul>

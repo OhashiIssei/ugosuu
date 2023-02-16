@@ -127,3 +127,17 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Text backup files
+*.bak
+
+# Database
+*.sqlite3
+
+# 容量を食うだけの予備データ
+media_local/
+math_data/
+notes/
+thumbnail/thumbnails/
+youtube/thumbnails/
+ugosite/templates/drawingApp/
