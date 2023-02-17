@@ -16,7 +16,7 @@ class ArticleAdmin(admin.ModelAdmin):
 admin.site.register(Article, ArticleAdmin)
 
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name' ,'parent','created_date','type')
+    list_display = ('name' ,'parent','type')
     # inlines = [ProblemsInline]
 
 admin.site.register(Category, CategoryAdmin)

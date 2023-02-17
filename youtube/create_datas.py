@@ -353,6 +353,7 @@ class PlaylistResponse(models.Model):
     def category(self):
         try:
             category_name = VIDEO_GENRE_TO_CAETEGORY[self.genre_name()]
+            print("%s→%s" % (self.genre_name(),category_name))
             return Category.objects.filter(type = "CHA").get(name = category_name)
         except:
             # input(self.genre_name())

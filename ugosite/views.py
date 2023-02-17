@@ -7,7 +7,7 @@ import youtube.views ,thumbnail.views , video_search.views
 
 # ここからがUgosuu
 
-from .models import MyFile,Category, Article, Source, Term,  Problem
+from .models import Category, Article, Source, Term,Problem
 from youtube.models import Video
 from django.contrib.auth.models import User #Blog author or author
 from django.views import generic
@@ -125,6 +125,54 @@ class ProblemListView(generic.ListView):
     model = Problem
     paginate_by = 100
 
+
+
+
+
+### データ書き換え層への接続
+
+from ugosite.create_datas import create_categories_form_four_step
+
+from youtube.create_datas import Download_Id,Download_Response,Create_Models,Add_Relation
+from youtube.create_datas import ChannelSectionResponse,PlaylistResponse,PlaylistItemResponse,VideoResponse
+from youtube.models import VideoGenre,VideoType,University
+
+def reflesh_Models():
+    create_categories_form_four_step()
+    
+    # Download_Id().channelSections()
+    # Download_Id().playlists()
+    # Download_Id().videos()
+
+    # Download_Response().videos()
+    # Download_Response().playlists()
+    # Download_Response().playlistItems()
+    # Download_Response().channelSections()
+
+    VideoGenre.objects.all().delete()
+    VideoType.objects.all().delete()
+
+    University.objects.all().delete()
+    Source.objects.all().delete()
+    Term.objects.all().delete()
+    
+    Create_Models().videos()
+    Create_Models().playlists()
+    Create_Models().channelSections()
+    Create_Models().playlistItems()
+    Create_Models().channelSections()
+    Add_Relation().videos()
+    Add_Relation().videos_to_terms()
+
+
+reflesh_Models()
+
+# for video_genre in VideoGenre.objects.all():
+#     print(video_genre.category())
+
+
+
+
 import certifi
 certifi.where()
 
@@ -153,3 +201,35 @@ class ArticleGenerater:
 
 
 # ArticleGenerater().test()
+
+
+
+
+
+
+    
+
+
+def display_status():
+    print("ChannelIdの個数: %s" % ChannelId.objects.count())
+    print("ChannelSectionIdの個数: %s" % ChannelSectionId.objects.count())
+    print("PlaylistIdの個数: %s" % PlaylistId.objects.count())
+    print("VideoIdの個数: %s" % VideoId.objects.count())
+
+    print("ChannelSectionResponseの個数: %s" % ChannelSectionResponse.objects.count())
+    print("PlaylistResponseの個数: %s" % PlaylistResponse.objects.count())
+    print("PlaylistItemResponseの個数: %s" % PlaylistItemResponse.objects.count())
+    print("VideoResponseの個数: %s" % VideoResponse.objects.count())
+
+    print("Videoの個数: %s" % Video.objects.count())
+    print("Playlistの個数: %s" % Playlist.objects.count())
+    print("PlaylistItemの個数: %s" % PlaylistItem.objects.count())
+    print("ChannelSectionの個数: %s" % ChannelSection.objects.count())
+
+    print("VideoTypeの個数: %s" % VideoType.objects.count())
+    print("VideoGenreの個数: %s" % VideoGenre.objects.count())
+
+    print("Universityの個数: %s" % University.objects.count())
+    print("Sourceの個数: %s" % Source.objects.count())
+
+# display_status()

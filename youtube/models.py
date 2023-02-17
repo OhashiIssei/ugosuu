@@ -8,14 +8,14 @@ import sys,re
 from django_mysql.models import ListCharField
 
 class ChannelId(models.Model):
-    raw_text = models.CharField(max_length=20,unique=True)
+    raw_text = models.CharField(max_length=50,unique=True)
 
     def __str__(self):
         return self.raw_text
     
 
 class ChannelSectionId(models.Model):
-    raw_text = models.CharField(max_length=20,unique=True)
+    raw_text = models.CharField(max_length=50,unique=True)
 
     def __str__(self):
         return self.raw_text
@@ -29,7 +29,7 @@ class ChannelSectionId(models.Model):
         self.save()
 
 class PlaylistId(models.Model):
-    raw_text = models.CharField(max_length=20,unique=True)
+    raw_text = models.CharField(max_length=50,unique=True)
 
     def __str__(self):
         return self.raw_text
@@ -43,7 +43,7 @@ class PlaylistId(models.Model):
         self.save()
 
 class VideoId(models.Model):
-    raw_text = models.CharField(max_length=20,unique=True)
+    raw_text = models.CharField(max_length=50,unique=True)
     
     def __str__(self):
         return self.raw_text
