@@ -133,10 +133,28 @@ class TeXfile:
         
         
     
-        
+import util.text_transform as text_transform
+from ugosite.models import Problem
 
 def create_from_my_texfiles():
     parent_category = Category.objects.create(name = "講師関係")
+    
+    def create_from_my_dir(dir_path:str):
+        for base_name in os.listdir(dir_path):
+            path = "%s/%s" % (dir_path,base_name)
+            if base_name.startswith('.'): continue
+            if "阪大" in base_name: continue
+            if "旧帝大" in base_name: continue
+            if base_name.endswith(".tex"):
+                make_from_my_texfile(TeXfile(path))
+                continue
+            if os.path.isdir(path):
+                Category.objects.create(
+                    name = base_name,
+                    parent = parent_category
+                )
+                create_from_my_dir(path)
+                continue
     
     def make_from_my_texfile(texfile:TeXfile):
         if texfile.isEmpty():return
@@ -150,7 +168,7 @@ def create_from_my_texfiles():
             if not questions: return
             print("new Article: %s (parent: %s)" % (new_article,new_article.parent))
             for text in questions:
-                problem = Problem().make_from_my_tex(text)
+                problem = make_problem(text)
                 problem.articles.add(new_article)
             return new_article
         
@@ -174,27 +192,66 @@ def create_from_my_texfiles():
             print("new Article: %s (parent: %s)" % (sub_article,sub_article.parent))
             questions = re.findall("\n\\\\bqu((?:.*\n)*?)\\\\equ",subsection)
             for text in questions:
-                problem = Problem().make_from_my_tex(text)
+                problem = make_problem(text)
                 problem.articles.add(sub_article)
                 
-    def update_my_folder(path:str):
-        for fileName in os.listdir(path):
-            if fileName.startswith('.'): continue
-            if "阪大" in fileName: continue
-            if "旧帝大" in fileName: continue
-            file_path = "%s/%s" % (KOUSIKANKEI_PATH,fileName)
-            if os.path.isdir(file_path):
-                child_category = Category.objects.create(
-                    name = fileName,
-                    parent = parent_category,
-                    path = file_path,
-                )
-                update_my_folder(file_path)
-                continue
-            if fileName.endswith(".tex"):
-                make_from_my_texfile(TeXfile(file_path))
+    def make_problem(text:str):
+        return Problem.objects.create(
+            name = problem_name(),
+            text = problem_text(),
+            source = problem_source(),
+            answer =  problem_answer()
+        )
                 
-    update_my_folder(KOUSIKANKEI_PATH)
+    FROM_MYTEX_DESCRIPTION_TO_JAX = [["\r",""]]
+    FROM_MYTEX_DESCRIPTION_TO_JAX += [["<","&lt;"],[">","&gt;"],["\\bunsuu","\\displaystyle\\frac"],["\\dlim","\\displaystyle\\lim"],["\\dsum","\\displaystyle\\sum"]]
+    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\vv","\\overrightarrow"],["\\bekutoru","\\overrightarrow"],["\\doo","^{\\circ}"],["\\C","^{\\text{C}}","\\sq{","\\sqrt{"]]
+    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\barr","\\left\\{\\begin{array}{l}"],["\\earr","\\end{array}\\right."]]
+    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\PP","^{\\text{P}}"],["\\QQ","^{\\text{Q}}"],["\\RR","^{\\text{R}}"]]
+    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\NEN","\\class{arrow-pp}{}"],["\\NEE","\\class{arrow-pm}{}"],["\\SES","\\class{arrow-mm}{}"],["\\SEE","\\class{arrow-mp}{}"]]
+    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\NE","&#x2197;"],["\\SE","&#x2198;"],["\\xlongrightarrow","\\xrightarrow"]]
+    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\hfill □","<p class = 'end'>□</p>"]]
+    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\bf\\boldmath", "\\bb"],["\n}\n","\n"],["\\bf", "\\bb"]]
+    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\newpage",""],["\\iffigure",""],["\\fi",""],["\\ifkaisetu",""],["\\begin{mawarikomi}{}{",""],["\\end{mawarikomi}",""],["\\vfill",""],["\\hfill",""],["\\Large",""]]
+    for j in range(10):
+        FROM_MYTEX_DESCRIPTION_TO_JAX += ["\\MARU{%s}" % str(j),str("&#931%s;" % str(j+1))]
+        
+    def problem_text(text:str):
+        result = text
+        for r in FROM_MYTEX_DESCRIPTION_TO_JAX:
+            result = result.replace(r[0],r[1])
+        result = text_transform.transform_dint(result,"{","}")
+        result = re.sub("%+[^\n]*\n","\n",result)
+        result = text_transform.itemize_to_ol(result)
+        result = text_transform.item_to_li(result)
+        result = re.sub("\$([\s\S]+?)\$"," $\\1$ ",result)
+        result = re.sub("\\\\vspace{.*?}","",result)
+        
+        result = re.sub("^\s*{\\\\bb\s*(.+)}.*\n","",result)
+        result = re.sub("\\\\hfill\((.*)\)","",result)
+        result = re.sub("\n\\\\begin{解答[\d]*}[^\n]*\n([\s\S]+?)\\\\end{解答[\d]*}","",result)
+        
+        result = result.replace("\\ ","~")
+        result = result.replace("\\~","\\\\")
+        result = re.sub(r"\\\s",r"\\\\ ",result)
+        return result
+            
+    def problem_name(text:str):
+        names = re.findall("^\s*{\\\\bb\s*(.+)}.*\n",text)
+        if names:return names[0]
+        return ""
+        
+    def problem_source(text:str):
+        sources = re.findall("\\\\hfill\((.*)\)",text)
+        if sources:return sources[0]
+        return ""
+        
+    def problem_answer(text:str):
+        answers = re.findall("\n\\\\begin{解答[\d]*}[^\n]*\n([\s\S]+?)\\\\end{解答[\d]*}",text)
+        if answers:return answers[0]
+        return ""
+    
+    create_from_my_dir(KOUSIKANKEI_PATH)
 
 KAKOMON_PATH = '/Users/greenman/Library/Mobile Documents/com~apple~CloudDocs/旧帝大過去問'
 
@@ -220,10 +277,10 @@ def update_kakomon_folder():
 # ICONS_PATH =  "/Users/greenman/Desktop/web-projects/django_projects/ugosite/media_local/icons"
 
 # def update_icons():
-#     for fileName in os.listdir(ICONS_PATH):
-#         if not ".svg" in fileName:continue
-#         svgPath = "%s/%s" % (ICONS_PATH,fileName)
-#         name = fileName.replace(".svg","")
+#     for file_name in os.listdir(ICONS_PATH):
+#         if not ".svg" in file_name:continue
+#         svgPath = "%s/%s" % (ICONS_PATH,file_name)
+#         name = file_name.replace(".svg","")
 #         name = normalize.join_diacritic(name)
 #         categorys = Category.objects.filter(name=name)
 

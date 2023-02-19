@@ -192,30 +192,15 @@ LEVEL_CHOICES = [
     ('MANIA', 'マニア向け'), 
 ]
 
-class Source(models.Model):
-    name = models.CharField(max_length=200, help_text='引用名を入力してください')
-    univ = models.CharField(max_length=200,  blank=True)
-    division = models.CharField(max_length=200, blank=True)
-    pub_date = models.DateField(default = timezone.now)
-    def __str__(self):
-        return self.name
-    
-    def make_from_name(self,name):
-        self.name = name
-        name = name.replace("(","").replace(")","")
-        self.name = name
-        self.save()
-        return self
-
 import util.text_transform as text_transform
 
 class Problem(models.Model):
     """問題を表すモデル"""
-    name = models.CharField(max_length=200, help_text='問題名を入力してください')
-    text = models.TextField(max_length=1000, help_text='この問題の内容をJax形式で入力してください')
-    articles = models.ManyToManyField(Article,help_text='この問題が含まれる記事を選んでください')
-    source = models.ForeignKey(Source, on_delete = models.CASCADE,null=True, help_text='この問題のソースを選んでください')
-    answer = models.TextField('example_answer', max_length=10000, null=True, blank=True, help_text='この問題の解答例をTeX形式で入力してください')
+    name = models.CharField(max_length=200)
+    text = models.TextField(max_length=1000)
+    articles = models.ManyToManyField(Article)
+    source = models.CharField(max_length=50,null=True, blank=True)
+    answer = models.TextField('example_answer', max_length=10000, null=True, blank=True)
 
     def get_admin_url(self):
         return "http://127.0.0.1:8000/admin/ugosite/problem/%s/" % self.id
@@ -225,51 +210,6 @@ class Problem(models.Model):
 
     def __str__(self):
         return self.name
-    
-    def make_from_my_tex(self,text:str):
-        self.text = text
-        FROM_MYTEX_DESCRIPTION_TO_JAX = []
-        FROM_MYTEX_DESCRIPTION_TO_JAX += [["<","&lt;"],[">","&gt;"],["\\bunsuu","\\displaystyle\\frac"],["\\dlim","\\displaystyle\\lim"],["\\dsum","\\displaystyle\\sum"]]
-        FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\vv","\\overrightarrow"],["\\bekutoru","\\overrightarrow"],["\\doo","^{\\circ}"],["\\C","^{\\text{C}}","\\sq{","\\sqrt{"]]
-        FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\barr","\\left\\{\\begin{array}{l}"],["\\earr","\\end{array}\\right."]]
-        FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\PP","^{\\text{P}}"],["\\QQ","^{\\text{Q}}"],["\\RR","^{\\text{R}}"]]
-        FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\NEN","\\class{arrow-pp}{}"],["\\NEE","\\class{arrow-pm}{}"],["\\SES","\\class{arrow-mm}{}"],["\\SEE","\\class{arrow-mp}{}"]]
-        FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\NE","&#x2197;"],["\\SE","&#x2198;"],["\\xlongrightarrow","\\xrightarrow"]]
-        FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\hfill □","<p class = 'end'>□</p>"]]
-        FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\bf\\boldmath", "\\bb"],["\n}\n","\n"],["\\bf", "\\bb"]]
-        for r in FROM_MYTEX_DESCRIPTION_TO_JAX:
-            text = text.replace(r[0],r[1])
-        text = text_transform.transform_dint(text,"{","}")
-        text = re.sub("%+[^\n]*\n","\n",text)
-        text = text.replace("\r","")
-        text = text_transform.itemize_to_ol(text)
-        text = text_transform.item_to_li(text)
-        text = re.sub("\$([\s\S]+?)\$"," $\\1$ ",text)
-        s = re.compile("\\\\hfill\((.*)\)")
-        sources = re.findall(s,text)
-        text = re.sub(s,"",text)
-        text = re.sub("\\\\vspace{.*?}","",text)
-        for l in ["\\newpage","\\iffigure","\\fi","\\ifkaisetu","\\begin{mawarikomi}{}{","\\end{mawarikomi}","\\vfill","\\hfill","\\Large"]:
-            text = text.replace(l,"")
-
-        for j in range(10):
-            text = text.replace("\\MARU{%s}" % str(j),str("&#931%s;" % str(j+1)))
-        answers = re.findall("\n\\\\begin{解答[\d]*}[^\n]*\n([\s\S]+?)\\\\end{解答[\d]*}",text)
-        n = re.findall("^\s*{\\\\bb\s*(.+)}.*\n",text)
-        if n:
-            self.name = n[0]
-        text = re.sub("^\s*{\\\\bb\s*(.+)}.*\n","",text)
-        text = text.replace("\\ ","~")
-        text = text.replace("\\~","\\\\")
-        text = re.sub(r"\\\s",r"\\\\ ",text)
-        if sources:
-            self.source = Source().make_from_name(sources[0])
-        if answers:
-            self.answer = answers[0]
-        self.text = text
-        self.save()
-        print("new Problem: %s" % self)
-        return self
 
     def make_from_kakomon_texfile(self,path:str):
         with codecs.open(path, 'r', encoding='shift_jis') as f:
@@ -308,10 +248,10 @@ from youtube.models import Playlist,Video
     
 class Question(models.Model):
     """問題を表すモデル (Problemから移行を検討中)"""
-    name = models.CharField(max_length=200, help_text='問題名を入力してください')
-    text = models.TextField(max_length=1000, help_text='この問題の内容をJax形式で入力してください')
-    source = models.ForeignKey(Source, on_delete = models.CASCADE,null=True, help_text='この問題のソースを選んでください')
-    answer = models.TextField('example_answer', max_length=10000, null=True, blank=True, help_text='この問題の解答例をTeX形式で入力してください')
+    name = models.CharField(max_length=200)
+    text = models.TextField(max_length=1000)
+    source = models.CharField(max_length=50,null=True, blank=True)
+    answer = models.TextField('example_answer', max_length=10000, null=True, blank=True)
 
     def admin_url(self):
         return "http://127.0.0.1:8000/admin/ugosite/problem/%s/" % self.id

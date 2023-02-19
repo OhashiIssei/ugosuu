@@ -7,7 +7,7 @@ import youtube.views ,thumbnail.views , video_search.views
 
 # ここからがUgosuu
 
-from .models import Category, Article, Source, Term,Problem
+from .models import Category, Article,  Term,Problem
 from youtube.models import Video
 from django.contrib.auth.models import User #Blog author or author
 from django.views import generic
