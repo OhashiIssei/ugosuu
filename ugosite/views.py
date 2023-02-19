@@ -165,7 +165,7 @@ def reflesh_Models():
     Add_Relation().videos_to_terms()
 
 
-reflesh_Models()
+# reflesh_Models()
 
 # for video_genre in VideoGenre.objects.all():
 #     print(video_genre.category())
