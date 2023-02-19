@@ -138,7 +138,7 @@ from youtube.create_datas import ChannelSectionResponse,PlaylistResponse,Playlis
 from youtube.models import VideoGenre,VideoType,University
 
 def reflesh_Models():
-    create_categories_form_four_step()
+    # create_categories_form_four_step()
     
     # Download_Id().channelSections()
     # Download_Id().playlists()
