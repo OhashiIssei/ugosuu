@@ -113,18 +113,23 @@ class TeXfile:
         self.path = path
         
     def name(self):
-        return os.path.basename(self.path)
+        return os.path.basename(self.path).replace(".tex","")
         
     def content_text(self):
         with open(self.path) as f:
             result = f.read()
         result = normalize.clean_up_lines(result)
+        result = re.sub("\%.*?\n","",result)
         s = re.search("\\\\begin{document}(.*\n)*\\\\end{document}",result)
         if not s: return ""
         return s.group().replace("\\sub{","\\subsection{")
+        
+        
     
     def isEmpty(self):
-        if self.content_text():return True
+        text =  self.content_text()
+        questions = re.findall("\n\\\\bqu((?:.*\n)*?)\\\\equ",text)
+        if not questions:return True
         return False
     
     def subsections_num(self):
@@ -137,76 +142,83 @@ import util.text_transform as text_transform
 from ugosite.models import Problem
 
 def create_from_my_texfiles():
-    parent_category = Category.objects.create(name = "講師関係")
     
-    def create_from_my_dir(dir_path:str):
+    def create_from_my_dir(dir_path:str,parent_category:Category):
+        print("%sを読み込む" % dir_path)
+        category_name = os.path.basename(dir_path)
+        child_category = Category.objects.create(
+            name = category_name,
+            parent = parent_category
+        )
         for base_name in os.listdir(dir_path):
             path = "%s/%s" % (dir_path,base_name)
             if base_name.startswith('.'): continue
             if "阪大" in base_name: continue
             if "旧帝大" in base_name: continue
+            if "まとめ" in base_name: continue
             if base_name.endswith(".tex"):
-                make_from_my_texfile(TeXfile(path))
+                texfile = TeXfile(path)
+                if texfile.isEmpty():continue
+                create_from_my_texfile(texfile,child_category)
                 continue
             if os.path.isdir(path):
-                Category.objects.create(
-                    name = base_name,
-                    parent = parent_category
-                )
-                create_from_my_dir(path)
+                create_from_my_dir(path,child_category)
                 continue
+        if not child_category.children():
+            child_category.delete()
+        
     
-    def make_from_my_texfile(texfile:TeXfile):
-        if texfile.isEmpty():return
+    def create_from_my_texfile(texfile:TeXfile,parent_category:Category):
         
         if texfile.subsections_num()<2:
-            new_article = Article.objects.create(
-                name = texfile.name(),
-                parent = parent_category
-            )
-            questions = re.findall("\n\\\\bqu((?:.*\n)*?)\\\\equ",texfile.content_text())
-            if not questions: return
+            article_name = texfile.name()
+            text =  texfile.content_text()
+            new_article = make_article_with_problem(article_name,text,parent_category)
             print("new Article: %s (parent: %s)" % (new_article,new_article.parent))
-            for text in questions:
-                problem = make_problem(text)
-                problem.articles.add(new_article)
             return new_article
         
         child_category = Category.objects.create(
             name = texfile.name(),
-            parent = new_article.parent,
-            path = texfile.path,
+            parent =  parent_category
         )
-        
         subsections = re.split("\n\\\\subsection",texfile.content_text())
-        for subsection in subsections[1:]:
-            n = re.findall("^{\\\\bb\s(.*)}",subsection)
-            if n:
-                name = n[0]
-            else:
-                name = "%s %s" % (child_category.name,len(child_category.children())+1)
-            sub_article = Article.objects.create(
-                name = name,
-                parent = child_category,
-            )
-            print("new Article: %s (parent: %s)" % (sub_article,sub_article.parent))
-            questions = re.findall("\n\\\\bqu((?:.*\n)*?)\\\\equ",subsection)
-            for text in questions:
-                problem = make_problem(text)
-                problem.articles.add(sub_article)
+        for text in subsections[1:]:
+            article_name = make_name_of_article(text,child_category)
+            article = make_article_with_problem(article_name,text,child_category)
+            print("new Article: %s (parent: %s)" % (article,article.parent))
+        return child_category
+        
+            
+    def make_name_of_article(text:str,category:Category):
+        n = re.findall("^\{\\\\bb\s(.*)\}",text)
+        if n:return n[0]
+        return  "%s %s" % (category,len(category.children())+1)
                 
-    def make_problem(text:str):
-        return Problem.objects.create(
-            name = problem_name(),
-            text = problem_text(),
-            source = problem_source(),
-            answer =  problem_answer()
+    def make_article_with_problem(name:str,text:str,parent_category:Category):
+        article = Article.objects.create(
+            name = name,
+            parent = parent_category
+            )
+        questions = re.findall("\n\\\\bqu((?:.*\n)*?)\\\\equ",text)
+        for text in questions:
+            problem = make_problem(text,article)
+            problem.articles.add(article)
+        return article
+                
+    def make_problem(text:str,article:Article):
+        problem = Problem.objects.create(
+            name = problem_name(text,article),
+            text = problem_text(text),
+            source = problem_source(text),
+            answer =  problem_answer(text)
         )
+        print("new Problem「%s」" % problem)
+        return problem
                 
     FROM_MYTEX_DESCRIPTION_TO_JAX = [["\r",""]]
     FROM_MYTEX_DESCRIPTION_TO_JAX += [["<","&lt;"],[">","&gt;"],["\\bunsuu","\\displaystyle\\frac"],["\\dlim","\\displaystyle\\lim"],["\\dsum","\\displaystyle\\sum"]]
     FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\vv","\\overrightarrow"],["\\bekutoru","\\overrightarrow"],["\\doo","^{\\circ}"],["\\C","^{\\text{C}}","\\sq{","\\sqrt{"]]
-    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\barr","\\left\\{\\begin{array}{l}"],["\\earr","\\end{array}\\right."]]
+    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\sq","\\sqrt"],["\\barr","\\left\\{\\begin{array}{l}"],["\\earr","\\end{array}\\right."]]
     FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\PP","^{\\text{P}}"],["\\QQ","^{\\text{Q}}"],["\\RR","^{\\text{R}}"]]
     FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\NEN","\\class{arrow-pp}{}"],["\\NEE","\\class{arrow-pm}{}"],["\\SES","\\class{arrow-mm}{}"],["\\SEE","\\class{arrow-mp}{}"]]
     FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\NE","&#x2197;"],["\\SE","&#x2198;"],["\\xlongrightarrow","\\xrightarrow"]]
@@ -214,7 +226,7 @@ def create_from_my_texfiles():
     FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\bf\\boldmath", "\\bb"],["\n}\n","\n"],["\\bf", "\\bb"]]
     FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\newpage",""],["\\iffigure",""],["\\fi",""],["\\ifkaisetu",""],["\\begin{mawarikomi}{}{",""],["\\end{mawarikomi}",""],["\\vfill",""],["\\hfill",""],["\\Large",""]]
     for j in range(10):
-        FROM_MYTEX_DESCRIPTION_TO_JAX += ["\\MARU{%s}" % str(j),str("&#931%s;" % str(j+1))]
+        FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\MARU{%s}" % str(j),str("&#931%s;" % str(j+1))]]
         
     def problem_text(text:str):
         result = text
@@ -235,11 +247,25 @@ def create_from_my_texfiles():
         result = result.replace("\\~","\\\\")
         result = re.sub(r"\\\s",r"\\\\ ",result)
         return result
+    
+    def test_problem_text():
+        test_input = "$\sum_{k=1}k^2$"
+        correct_output = " $\sum_{k=1}k^2$ "
+        test_output = problem_text(test_input)
+        if correct_output==test_output:
+            print("problem_text:OK")
+            return 
+        input("problem_text:%s→%s⇄%s" % (test_input,test_output,correct_output))
+        
+    test_problem_text()
             
-    def problem_name(text:str):
-        names = re.findall("^\s*{\\\\bb\s*(.+)}.*\n",text)
-        if names:return names[0]
-        return ""
+    def problem_name(text:str,article:Article):
+        print(text)
+        text = text.replace("\\Large","").replace("\\mathmode","")
+        names = re.findall("^[\s]*\%*\{\\\\bb[\s](.+)\}",text)
+        if names:return names[0].replace("\\fi","").replace("\\ifkaisetu","")
+        num_in_article = article.problem_set.count()+1
+        return "%s 問題%s" % (article,num_in_article)
         
     def problem_source(text:str):
         sources = re.findall("\\\\hfill\((.*)\)",text)
@@ -247,15 +273,16 @@ def create_from_my_texfiles():
         return ""
         
     def problem_answer(text:str):
-        answers = re.findall("\n\\\\begin{解答[\d]*}[^\n]*\n([\s\S]+?)\\\\end{解答[\d]*}",text)
+        answers = re.findall("\n\\\\begin\{解答[\d]*\}[^\n]*\n([\s\S]+?)\\\\end\{解答[\d]*\}",text)
         if answers:return answers[0]
         return ""
     
-    create_from_my_dir(KOUSIKANKEI_PATH)
+    Category.objects.filter(name = "講師関係").delete()
+    create_from_my_dir(KOUSIKANKEI_PATH,None)
 
 KAKOMON_PATH = '/Users/greenman/Library/Mobile Documents/com~apple~CloudDocs/旧帝大過去問'
 
-def update_kakomon_folder():
+def create_form_kakomon_files():
     parent_category = Category.objects.create(name = "大学別62年過去問題集")
     for univ in sorted(os.listdir(KAKOMON_PATH)):
         if univ.startswith('.'): continue

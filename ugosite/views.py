@@ -48,22 +48,20 @@ class ArticleDetailView(generic.DetailView):
     model = Article
     def get_context_data(self, **kwargs):
         context = super(ArticleDetailView,self).get_context_data(**kwargs)
-        url = "articles/"+self.kwargs['id']+".html"
+        url = "articles/"+str(self.kwargs['pk'])+".html"
         context['template'] = os.path.isfile("ugosite/templates/"+url)
         context['html'] = url
-        article = context["article"]
-        if article.categorys.all():
-            category = article.categorys.all()[0]
-            articles = Article.objects.filter(parent = category)
-            index = list(articles).index(article)
-            if not len(articles) == index+1:
-                context['next'] = articles[index+1].get_absolute_url()
-            if not index-1<0:
-                context['prev'] = articles[index-1].get_absolute_url()
-            context['up'] = category.get_absolute_url()
-        context['ancestors'] = article.ancestors()
-        context['category'] = article.category
-        context['self'] = article
+        # article = context["article"]
+        # category = article.parent
+        # articles = Article.objects.filter(parent = category)
+        # index = list(articles).index(article)
+        # if not len(articles) == index+1:
+        #     context['next'] = articles[index+1].get_absolute_url()
+        # if not index-1<0:
+        #     context['prev'] = articles[index-1].get_absolute_url()
+        # context['up'] = category.get_absolute_url()
+        # context['ancestors'] = article.ancestors()
+        # context['category'] = article.category
         return context
 
 class ArticleListView(generic.ListView):
@@ -104,22 +102,22 @@ class CategoryListView(generic.ListView):
 
 
 class ProblemDetailView(generic.DetailView):
-    def get_context_data(self, **kwargs):
-        context = super(ProblemDetailView,self).get_context_data(**kwargs)
-        problem = context["problem"]
-        category = problem.categorys.all()[0]
-        context["category"] = category
-        problems = Problem.objects.filter(categorys = category) 
-        index = list(problems).index(problem)
-        if not len(problems) == index+1:
-            context['next'] = problems[index+1].get_absolute_url()
-        if not index-1<0:
-            context['prev'] = problems[index-1].get_absolute_url()
-        context['up'] = problem.get_absolute_url()
-        context['ancestors'] =  category.ancestors()+[category]
-        context['self'] = problem
-        return context
     model = Problem
+    # def get_context_data(self, **kwargs):
+    #     context = super(ProblemDetailView,self).get_context_data(**kwargs)
+    #     problem = context["problem"]
+    #     category = problem.categorys.all()[0]
+    #     context["category"] = category
+    #     problems = Problem.objects.filter(categorys = category) 
+    #     index = list(problems).index(problem)
+    #     if not len(problems) == index+1:
+    #         context['next'] = problems[index+1].get_absolute_url()
+    #     if not index-1<0:
+    #         context['prev'] = problems[index-1].get_absolute_url()
+    #     context['up'] = problem.get_absolute_url()
+    #     context['ancestors'] =  category.ancestors()+[category]
+    #     context['self'] = problem
+    #     return context
 
 class ProblemListView(generic.ListView):
     model = Problem
@@ -131,7 +129,7 @@ class ProblemListView(generic.ListView):
 
 ### データ書き換え層への接続
 
-from ugosite.create_datas import create_categories_form_four_step
+from ugosite.create_datas import create_categories_form_four_step,create_from_my_texfiles,create_form_kakomon_files
 
 from youtube.create_datas import Download_Id,Download_Response,Create_Models,Add_Relation
 from youtube.create_datas import ChannelSectionResponse,PlaylistResponse,PlaylistItemResponse,VideoResponse
@@ -139,7 +137,13 @@ from youtube.models import VideoId,PlaylistId,ChannelSectionId,ChannelId
 from youtube.models import VideoGenre,VideoType,University,Source
 
 def reflesh_Models():
+    Category.objects.all().delete()
+    Article.objects.all().delete()
+    Problem.objects.all().delete()
+    
     # create_categories_form_four_step()
+    create_from_my_texfiles()
+    # create_form_kakomon_files()
     
     # Download_Id().channelSections()
     # Download_Id().playlists()
@@ -150,23 +154,23 @@ def reflesh_Models():
     # Download_Response().playlistItems()
     # Download_Response().channelSections()
 
-    VideoGenre.objects.all().delete()
-    VideoType.objects.all().delete()
+    # VideoGenre.objects.all().delete()
+    # VideoType.objects.all().delete()
 
-    University.objects.all().delete()
-    Source.objects.all().delete()
-    Term.objects.all().delete()
+    # University.objects.all().delete()
+    # Source.objects.all().delete()
+    # Term.objects.all().delete()
     
-    Create_Models().videos()
-    Create_Models().playlists()
-    Create_Models().channelSections()
-    Create_Models().playlistItems()
-    Create_Models().channelSections()
-    Add_Relation().videos()
-    Add_Relation().videos_to_terms()
+    # Create_Models().videos()
+    # Create_Models().playlists()
+    # Create_Models().channelSections()
+    # Create_Models().playlistItems()
+    # Create_Models().channelSections()
+    # Add_Relation().videos()
+    # Add_Relation().videos_to_terms()
 
 
-# reflesh_Models()
+reflesh_Models()
 
 # for video_genre in VideoGenre.objects.all():
 #     print(video_genre.category())
@@ -232,5 +236,9 @@ def display_status():
 
     print("Universityの個数: %s" % University.objects.count())
     print("Sourceの個数: %s" % Source.objects.count())
+    
+    print("Categoryの個数: %s" % Category.objects.count())
+    print("Articleの個数: %s" % Article.objects.count())
+    print("Problemの個数: %s" % Problem.objects.count())
 
 display_status()

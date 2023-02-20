@@ -1,0 +1,16 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> Articles</title>
+{% endblock %}
+
+{% block folders %}
+  <h4>Articles</h4>
+  <ul>
+    {% for article in article_list %}
+    <li class="linkdiv">
+      {% include "model_link.html" with model=article %}
+    </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

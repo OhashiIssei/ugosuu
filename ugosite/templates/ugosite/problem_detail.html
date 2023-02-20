@@ -4,12 +4,12 @@
   <title> {{ problem.name }}</title>
 {% endblock %}
 
-{% block subnav %}
+{% comment %} {% block subnav %}
   <a class="ancestors" href ="{% url 'genres' %}">分野一覧＞</a>
   {% include "ancestors.html" %}
   
   {% include "next-prev.html" %}
-{% endblock %}
+{% endblock %} {% endcomment %}
 
 {% block content %}
   <h2>{{ problem.name }}</h2>
@@ -44,7 +44,7 @@
     
 {% endblock %}
 
-{% block rightbar %}
+{% comment %} {% block rightbar %}
   <h4>{{ problem.genres.first }}</h4>
   {% include "genres.html" with genre=problem.genres.first %}
 
@@ -63,4 +63,4 @@
       });
     }
   </script>
-{% endblock %}
+{% endblock %} {% endcomment %}

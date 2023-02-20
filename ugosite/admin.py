@@ -21,6 +21,12 @@ class CategoryAdmin(admin.ModelAdmin):
 
 admin.site.register(Category, CategoryAdmin)
 
+class ProblemAdmin(admin.ModelAdmin):
+    list_display = ('name' ,'text')
+    # inlines = [ProblemsInline]
+
+admin.site.register(Problem, ProblemAdmin)
+
 
 
 from youtube.models import Video,Playlist,PlaylistItem,ChannelSection

@@ -91,46 +91,6 @@ class Article(MyFile):
 
     def __str__(self):
         return self.name
-    
-    def make_from_my_texfile(self,path:str):
-        self.name = os.path.basename(path).replace(".tex","")
-        self.path = path
-        with open(path) as f:
-            file_text = f.read()
-        file_text = normalize.clean_up_lines(file_text)
-        s = re.search("\\\\begin{document}(.*\n)*\\\\end{document}",file_text)
-        if not s: return self##これがなければ話にならない
-        file_text = s.group().replace("\\sub{","\\subsection{")
-        subsections = re.split("\n\\\\subsection",file_text)
-        if len(subsections)<3:##subが1つ以下のときは
-            self.save()
-            questions = re.findall("\n\\\\bqu((?:.*\n)*?)\\\\equ",file_text)
-            if not questions: return
-            print("new Article: %s (parent: %s)" % (self,self.parent))
-            for text in questions:
-                problem = Problem().make_from_my_tex(text)
-                problem.articles.add(self)
-            return self
-        child_category = Category.objects.create(
-            name = self.name,
-            parent = self.parent,
-            path = path,
-        )
-        for sub in subsections[1:]:
-            n = re.findall("^{\\\\bb\s(.*)}",sub)
-            if n:
-                name = n[0]
-            else:
-                name = "%s %s" % (child_category.name,len(child_category.children())+1)
-            sub_article = Article.objects.create(
-                name = name,
-                parent = child_category,
-            )
-            print("new Article: %s (parent: %s)" % (sub_article,sub_article.parent))
-            questions = re.findall("\n\\\\bqu((?:.*\n)*?)\\\\equ",sub)
-            for text in questions:
-                problem = Problem().make_from_my_tex(text)
-                problem.articles.add(sub_article)
 
     def make_from_kakomon_folder(self,path):
         self.name = "%s %s" % (self.parent.name,os.path.basename(path))
@@ -218,7 +178,8 @@ class Problem(models.Model):
         if not t:
             print(text)
             sys.exit()
-        atricleName = Article.objects.get(path=os.path.dirname(path)).name
+        article = Article.objects.filter(path=os.path.dirname(path))[0]
+        atricleName = article.name
         num =  re.findall("_(\w+).tex",os.path.basename(path))[0]
         if re.match("\d_\d",num):
             division = "文"
@@ -226,7 +187,7 @@ class Problem(models.Model):
         else:
             division = "理"
         self.name = "%s %s系 第%s問" % (atricleName,division,num)
-        self.source = Source().make_from_name(self.name)
+        self.source = self.name
         text = t[0]
         text = text.replace("<","&lt;").replace(">","&gt;")
         text = text.replace("\r","")
