@@ -7,7 +7,7 @@ import youtube.views ,thumbnail.views , video_search.views
 
 # ここからがUgosuu
 
-from .models import Category, Article,  Term,Problem
+from .models import Category, Article, Term,Problem
 from youtube.models import Video
 from django.contrib.auth.models import User #Blog author or author
 from django.views import generic
@@ -135,7 +135,8 @@ from ugosite.create_datas import create_categories_form_four_step
 
 from youtube.create_datas import Download_Id,Download_Response,Create_Models,Add_Relation
 from youtube.create_datas import ChannelSectionResponse,PlaylistResponse,PlaylistItemResponse,VideoResponse
-from youtube.models import VideoGenre,VideoType,University
+from youtube.models import VideoId,PlaylistId,ChannelSectionId,ChannelId
+from youtube.models import VideoGenre,VideoType,University,Source
 
 def reflesh_Models():
     # create_categories_form_four_step()
@@ -176,7 +177,7 @@ def reflesh_Models():
 import certifi
 certifi.where()
 
-from youtube.models import ChannelSection,Playlist
+from youtube.models import ChannelSection,Playlist,PlaylistItem
 
 from .models import QuestionSet
 
@@ -232,4 +233,4 @@ def display_status():
     print("Universityの個数: %s" % University.objects.count())
     print("Sourceの個数: %s" % Source.objects.count())
 
-# display_status()
+display_status()
