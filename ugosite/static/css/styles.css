@@ -554,6 +554,17 @@ aside{
   margin-left : 0rem;
 }
 
+.yokonarabi{
+  display:flex;
+  /* flex-wrap: nowrap; */
+  padding:0;
+  list-style:none;
+}
+.yokonarabi li{
+  /*コレ*/width:100%;
+  padding: 10px;
+}
+
 .tex{
   font-family: "ヒラギノ明朝 ProN W6",sans-serif;
   line-height:2.5em;

@@ -170,7 +170,7 @@ def reflesh_Models():
     # Add_Relation().videos_to_terms()
 
 
-# reflesh_Models()
+reflesh_Models()
 
 # for video_genre in VideoGenre.objects.all():
 #     print(video_genre.category())
@@ -216,29 +216,36 @@ class ArticleGenerater:
 
 
 def display_status():
+    print("Categoryの個数: %s" % Category.objects.count())
+    print("Articleの個数: %s" % Article.objects.count())
+    print("Problemの個数: %s" % Problem.objects.count())
+    print("")
+    
     print("ChannelIdの個数: %s" % ChannelId.objects.count())
     print("ChannelSectionIdの個数: %s" % ChannelSectionId.objects.count())
     print("PlaylistIdの個数: %s" % PlaylistId.objects.count())
     print("VideoIdの個数: %s" % VideoId.objects.count())
+    print("")
 
     print("ChannelSectionResponseの個数: %s" % ChannelSectionResponse.objects.count())
     print("PlaylistResponseの個数: %s" % PlaylistResponse.objects.count())
     print("PlaylistItemResponseの個数: %s" % PlaylistItemResponse.objects.count())
     print("VideoResponseの個数: %s" % VideoResponse.objects.count())
+    print("")
 
     print("Videoの個数: %s" % Video.objects.count())
     print("Playlistの個数: %s" % Playlist.objects.count())
     print("PlaylistItemの個数: %s" % PlaylistItem.objects.count())
     print("ChannelSectionの個数: %s" % ChannelSection.objects.count())
+    print("")
 
     print("VideoTypeの個数: %s" % VideoType.objects.count())
     print("VideoGenreの個数: %s" % VideoGenre.objects.count())
+    print("")
 
     print("Universityの個数: %s" % University.objects.count())
     print("Sourceの個数: %s" % Source.objects.count())
-    
-    print("Categoryの個数: %s" % Category.objects.count())
-    print("Articleの個数: %s" % Article.objects.count())
-    print("Problemの個数: %s" % Problem.objects.count())
+    print("")
+
 
 display_status()

@@ -84,7 +84,7 @@ class Article(MyFile):
     update_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ['created_date']
+        ordering = ['name']
 
     def get_absolute_url(self):
         return reverse('article-detail', args=[str(self.id)])
@@ -121,7 +121,7 @@ class Category(MyFile):
     parent = models.ForeignKey('Category', on_delete = models.CASCADE, null=True)
 
     class Meta:
-        ordering = ['id']
+        ordering = ['name']
 
     def get_absolute_url(self):
         return reverse('category-detail', args=[str(self.id)])
@@ -239,11 +239,3 @@ class QuestionSet(models.Model):
         )
         print("QuestionSet「%s」を作成しました" % question_set)
         return question_set
-    
-
-
-def display_statue():
-    print("Categoryの個数: %s" % Category.objects.count())
-    print("Articleの個数: %s" % Article.objects.count())
-
-display_statue()

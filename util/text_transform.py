@@ -24,12 +24,12 @@ class Ireko:
         return child
     
     def read_one_invariant(self):
-        text = self.text
+        result = self.text
         invs = [self]
-        length = len(text)
-        for i,c in enumerate(text):
+        length = len(result)
+        for i,c in enumerate(result):
             if c in self.startbr:
-                invariant = invs[0].new_child(text[i:])
+                invariant = invs[0].new_child(result[i:])
                 invs.insert(0,invariant)
                 continue
             if c in self.endbr:
@@ -42,7 +42,7 @@ class Ireko:
                 continue
             if c==" ":continue
             if invs[0].depth==0 :return c
-        return text
+        return result
         
     def reversed(self):
         ireko = Ireko(
@@ -80,7 +80,8 @@ class Ireko:
         child = mom[::-1]
         return child
     
-def transform_dint(text,startbr,endbr):
+def transform_dint(text:str,startbr,endbr):
+    text = text.replace("\\dint ","\\dint")
     m = re.search("\\\\dint",text)
     if not m: return text
     ireko = Ireko(
@@ -91,26 +92,42 @@ def transform_dint(text,startbr,endbr):
     low = ireko.read_one_invariant()
     ireko.text = ireko.text[len(low):]
     high = ireko.read_one_invariant()
-    text = text.replace("\\dint"+low+high,"\\displaystyle\\int_"+low+"^"+high)
-    text = transform_dint(text,startbr,endbr)
-    # print(target[:20].replace(low+high,"\\displaystyle\\int_"+low+"^"+high))
-    return text
+    target_string = "\\dint"+low+high
+    if not target_string in text:
+        input(f"エラー:\n target_string:{target_string}\n text:{text}")
+    result = text.replace(target_string,"\\displaystyle\\int_"+low+"^"+high)
+    result = transform_dint(result,startbr,endbr)
+    return result
+
+def test_transform_dint():
+    test_input = "\\dint{t}{t+1}xdx+\\dint ta x dx+\\dint01 x dx"
+    test_output = transform_dint(test_input,"{","}")
+    correct_output = "\\displaystyle\\int_{t}^{t+1}xdx+\\displaystyle\\int_t^a x dx+\\displaystyle\\int_0^1 x dx"
+    if test_output == correct_output:
+        print("transform_dint:OK")
+        return
+    input(f"transform_dint\n:{test_input}\n→{test_output}\n⇄{correct_output}")
+    
+test_transform_dint()
 
 
 
 
 def itemize_to_ol(text):
-    text = re.sub("\\\\beda<[0-9]>","<ol>",text)
-    text = text.replace("\\beda","<ol>").replace("\\eeda","</ol>")
-    text = text.replace("\\benu","<ol>").replace("\\eenu","</ol>")
-    text = text.replace("\\begin{itemize}","<ol>").replace("\\end{itemize}","</ol>")
-    text = text.replace("\\begin{enumerate}","<ol>").replace("\\end{enumerate}","</ol>")
-    text = text.replace("\\begin{description}","<ol>").replace("\\end{description}","</ol>")
-    text = text.replace("<ol>","<ol class = 'small-question'>")
-    if not len(re.findall("<ol.*>",text))==len(re.findall("</ol>",text)):
-        print("olの数が一致しません\n%s" % text)
-        sys.exit()
-    return text
+    result = text
+    result = result.replace("\\beda","\\begin{edaenumerate}").replace("\\eeda","\\end{edaenumerate}")
+    result = re.sub("\\\\begin{edaenumerate}<[0-9]>","<ol class = 'small-question yokonarabi'>",result)
+    result = re.sub("\\\\begin{edaenumerate}&lt;[0-9]&gt;","<ol class = 'small-question yokonarabi'>",result)
+    result = result.replace("\\begin{edaenumerate}","<ol>").replace("\\end{edaenumerate}","</ol>")
+    
+    result = result.replace("\\benu","<ol>").replace("\\eenu","</ol>")
+    result = result.replace("\\begin{itemize}","<ol>").replace("\\end{itemize}","</ol>")
+    result = result.replace("\\begin{enumerate}","<ol>").replace("\\end{enumerate}","</ol>")
+    result = result.replace("\\begin{description}","<ol>").replace("\\end{description}","</ol>")
+    result = result.replace("<ol>","<ol class = 'small-question'>")
+    if not len(re.findall("<ol.*>",result))==len(re.findall("</ol>",result)):
+        input("olの数が一致しません\n%s" % result)
+    return result
 
 def item_to_li(text):
     if not re.search("\\\\item",text):

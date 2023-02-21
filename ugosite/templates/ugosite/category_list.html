@@ -12,6 +12,8 @@
 {% endblock %}
 
 {% block scripts %}
-  {% include "category_system.html" %}
+  {% for category in categorys %}
+    {% include "category_system.html" with model=category %}
+  {% endfor %}
 {% endblock %}
 

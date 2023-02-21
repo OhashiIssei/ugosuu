@@ -6,7 +6,15 @@
 
 {% block folders %}
   <h4>記事集</h4>
-  {% include "categorys.html" %}
+
+  <ul>
+    <li class="folder linkdiv" itemid="{{ category.id }}">
+      <a href="#">
+        {{ category }}
+      </a>
+      {% include "categorys.html" %}
+    </li>
+  </ul>
 {% endblock %}
 
 {% block content %}

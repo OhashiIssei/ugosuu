@@ -1,19 +1,23 @@
 <ul>
-  {% for category in categorys %}
-    {% if category.isChapter %}
-      {% for video_genre in category.videogenre_set.all %}
-        <li class ="linkdiv" >
-          {% include "model_link.html" with model=video_genre %}
-        </li>
-      {% endfor %}
-    {% else %}
-      <li class ="folder linkdiv" itemid="{{ category.id }}">
-        <a href="#">
-          {% if category.icon %} {{ category.icon | safe }}  {% endif %}
-          {{ category.name }}
-        </a>
-        {% include "categorys.html" with categorys=category.category_set.all %}
-      </li>
-    {% endif %}
+  {% for child_category in category.category_set.all %}
+    <li class ="folder linkdiv" itemid="category_{{ child_category.id }}">
+      <a href="#">
+        {% comment %} {% if child_category.icon %} {{ child_category.icon | safe }}  {% endif %} {% endcomment %}
+        {{ child_category.name }}
+      </a>
+      {% include "categorys.html" with category=child_category %}
+    </li>
+  {% endfor %}
+
+  {% for article in category.article_set.all %}
+    <li class ="file linkdiv"  itemid="article_{{ article.id }}">
+      {% include "model_link.html" with model=article %}
+    </li>
+  {% endfor %}
+
+  {% for video_genre in category.videogenre_set.all %}
+    <li class ="file linkdiv" >
+      {% include "model_link.html" with model=video_genre %}
+    </li>
   {% endfor %}
 </ul>

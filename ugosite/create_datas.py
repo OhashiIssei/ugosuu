@@ -17,6 +17,9 @@ import util.normalize as normalize
 
 from .models import Article,Category,Term
 
+import util.text_transform as text_transform
+from ugosite.models import Problem
+
 FOUR_STEP_DATA = [
     ["I","k4step_b1a.xlsx",0],
     ["A",'k4step_b1a.xlsx',1],
@@ -105,10 +108,29 @@ def create_categories_form_four_step():
                 print("new Category: %s (parent: %s)" % (sub_category, sub_category.parent))
                 continue
             article_from_title(title).save()
+            
+            
+            
+FROM_MYTEX_DESCRIPTION_TO_JAX = [["\r",""]]
+FROM_MYTEX_DESCRIPTION_TO_JAX += [["<","&lt;"],[">","&gt;"],["\\bunsuu","\\displaystyle\\frac"],["\\dlim","\\displaystyle\\lim"],["\\dsum","\\displaystyle\\sum"]]
+FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\vv","\\overrightarrow"],["\\bekutoru","\\overrightarrow"],["\\doo","^{\\circ}"],["\\C","^{\\text{C}}"]]
+FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\barr","\\left\\{\\begin{array}{l}"],["\\earr","\\end{array}\\right."]]
+FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\PP","^{\\text{P}}"],["\\QQ","^{\\text{Q}}"],["\\RR","^{\\text{R}}"]]
+FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\NEN","\\class{arrow-pp}{}"],["\\NEE","\\class{arrow-pm}{}"],["\\SES","\\class{arrow-mm}{}"],["\\SEE","\\class{arrow-mp}{}"]]
+FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\NE","&#x2197;"],["\\SE","&#x2198;"],["\\xlongrightarrow","\\xrightarrow"]]
+FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\hfill □","<p class = 'end'>□</p>"]]
+FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\bf\\boldmath", "\\bb"],["\n}\n","\n"],["\\bf", "\\bb"]]
+FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\newpage",""],["\\iffigure",""],["\\fi",""],["\\ifkaisetu",""],["\\begin{mawarikomi}{}{",""],["\\end{mawarikomi}",""],["\\vfill",""],["\\Large",""]]
+FROM_MYTEX_DESCRIPTION_TO_JAX += [["normalsize",""],["\\large",""],["\\Large",""],["\\LARGE",""],["\\huge",""],["\\Huge",""]]
+FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\bf",""],["\\bb",""],["\\boldmath",""]]
+FROM_MYTEX_DESCRIPTION_TO_JAX += [["bquu","bqu"],["equu","equ"],["bQ","bqu"],["eQ","equ"]]
+for j in range(10):
+    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\MARU{%s}" % str(j),str("&#931%s;" % str(j+1))]]
+    
 
 KOUSIKANKEI_PATH = '/Users/greenman/Library/Mobile Documents/com~apple~CloudDocs/講師関係'
 
-class TeXfile:
+class MyTeXfile:
     def __init__(self,path:str):
         self.path = path
         
@@ -117,31 +139,114 @@ class TeXfile:
         
     def content_text(self):
         with open(self.path) as f:
-            result = f.read()
-        result = normalize.clean_up_lines(result)
-        result = re.sub("\%.*?\n","",result)
-        s = re.search("\\\\begin{document}(.*\n)*\\\\end{document}",result)
-        if not s: return ""
-        return s.group().replace("\\sub{","\\subsection{")
-        
-        
+            text = f.read()
+        text = normalize.clean_up_lines(text)
+        text = re.sub("\%.*?\n","",text)
+        s = re.search("\\\\begin{document}(.*\n)*\\\\end{document}",text)
+        if not s: return TextOfMyTeX("")
+        text = s.group().replace("\\sub{","\\subsection{")
+        return TextOfMyTeX(text)
     
-    def isEmpty(self):
-        text =  self.content_text()
-        questions = re.findall("\n\\\\bqu((?:.*\n)*?)\\\\equ",text)
-        if not questions:return True
-        return False
+    def has_problem(self):
+        my_tex = self.content_text()
+        my_tex = my_tex.replace("bquu","bqu").replace("bQ","bqu").replace("begin{question}","bqu")
+        return my_tex.has_in_regular_expression("\\\\bqu((?:.*\n)*?)\\\\equ")
     
     def subsections_num(self):
-        f = re.findall("\\\\sub",self.content_text())
-        return len(f)
-        
-        
+        return self.content_text().finded_num_in_regular_expression("\\\\sub")
     
-import util.text_transform as text_transform
-from ugosite.models import Problem
+class TextOfMyTeX:
+    def __init__(self,text:str):
+        self.text = text
+        
+    def translate_to_jax(self):
+        result = self.text
+        for r in FROM_MYTEX_DESCRIPTION_TO_JAX:
+            result = result.replace(r[0],r[1])
+        result = re.sub("\\\\sq([^r])","\\\\sqrt\\1",result)
+        return result
+    
+    def test_translate_to_jax():
+        test_input = "\\sq3+\\sqrt3+\\sq{3}+\\sqrt{3}"
+        test_output = TextOfMyTeX(test_input).translate_to_jax()
+        correct_output = "\\sqrt3+\\sqrt3+\\sqrt{3}+\\sqrt{3}"
+        if correct_output == test_output:
+            print("text_in_jax:OK")
+            return
+        input(f"text_in_jax\n:{test_input}\n→{test_output}\n⇄{correct_output}")
+        
+    def replace(self,target_string:str,replace_string:str):
+        return TextOfMyTeX(self.text.replace(target_string,replace_string))
+    
+    def has_in_regular_expression(self,regular_expression:str):
+        if re.match(regular_expression,self.text):return True
+        return False
+    
+    def finded_num_in_regular_expression(self,regular_expression:str):
+        return len(re.findall(regular_expression,self.text))
+        
+TextOfMyTeX.test_translate_to_jax()
+
+class TextOfOneProblemInMyTeX:
+    def __init__(self,text:str):
+        self.text = text
+        
+    def main_text(self):
+        result = self.text
+        result = text_transform.transform_dint(result,"{","}")
+        result = re.sub("%+[^\n]*\n","\n",result)
+        result = text_transform.itemize_to_ol(result)
+        result = text_transform.item_to_li(result)
+        result = re.sub("\$([\s\S]+?)\$"," $\\1$ ",result)
+        result = re.sub("\\\\vspace{.*?}","",result)
+        
+        result = re.sub("^\s*\{.+\}.*\n","",result)
+        result = re.sub("\\\\hfill\((.*)\)","",result)
+        result = result.replace("\\hfill","")
+        result = re.sub("\n\\\\begin{解答[\d]*}[^\n]*\n([\s\S]+?)\\\\end{解答[\d]*}","",result)
+        
+        # result = result.replace("\\\\","\n")
+        result = result.replace("\\ "," ")
+        return result
+    
+    def test_main_text():
+        test_self = TextOfOneProblemInMyTeX("$\sum_{k=1}k^2$")
+        test_output = test_self.main_text()
+        correct_output = " $\sum_{k=1}k^2$ "
+        if correct_output==test_output:
+            print("problem_text:OK")
+            return 
+        input("problem_text\n:%s\n→%s\n⇄%s" % (test_self.text,test_output,correct_output))
+            
+    def name(self,article:Article):
+        names = re.findall("^[\s]*\{[\s]*(.+)\}",self.text)
+        if names:return names[0].replace("\\fi","").replace("\\ifkaisetu","")
+        num_in_article = article.problem_set.count()+1
+        return "%s 問題%s" % (article,num_in_article)
+        
+    def source(self):
+        sources = re.findall("\\\\hfill\((.*)\)",self.text)
+        if sources:return sources[0]
+        return ""
+        
+    def answer(self):
+        answers = re.findall("\n\\\\begin\{解答[\d]*\}[^\n]*\n([\s\S]+?)\\\\end\{解答[\d]*\}",self.text)
+        if answers:return answers[0]
+        return ""
+    
+    def create_model(self,article:Article):
+        return Problem.objects.create(
+            name = self.name(article),
+            text = self.main_text(),
+            source = self.source(),
+            answer =  self.answer()
+        ).articles.add(article)
+    
+TextOfOneProblemInMyTeX.test_main_text()
 
 def create_from_my_texfiles():
+    
+    ### category
     
     def create_from_my_dir(dir_path:str,parent_category:Category):
         print("%sを読み込む" % dir_path)
@@ -157,8 +262,8 @@ def create_from_my_texfiles():
             if "旧帝大" in base_name: continue
             if "まとめ" in base_name: continue
             if base_name.endswith(".tex"):
-                texfile = TeXfile(path)
-                if texfile.isEmpty():continue
+                texfile = MyTeXfile(path)
+                if texfile.has_problem():continue
                 create_from_my_texfile(texfile,child_category)
                 continue
             if os.path.isdir(path):
@@ -166,13 +271,14 @@ def create_from_my_texfiles():
                 continue
         if not child_category.children():
             child_category.delete()
-        
     
-    def create_from_my_texfile(texfile:TeXfile,parent_category:Category):
+    ### article or category
+    
+    def create_from_my_texfile(texfile:MyTeXfile,parent_category:Category):
         
         if texfile.subsections_num()<2:
             article_name = texfile.name()
-            text =  texfile.content_text()
+            text = texfile.content_text().translate_to_jax()
             new_article = make_article_with_problem(article_name,text,parent_category)
             print("new Article: %s (parent: %s)" % (new_article,new_article.parent))
             return new_article
@@ -181,7 +287,8 @@ def create_from_my_texfiles():
             name = texfile.name(),
             parent =  parent_category
         )
-        subsections = re.split("\n\\\\subsection",texfile.content_text())
+        text_in_jax = texfile.content_text().translate_to_jax()
+        subsections = re.split("\n\\\\subsection",text_in_jax)
         for text in subsections[1:]:
             article_name = make_name_of_article(text,child_category)
             article = make_article_with_problem(article_name,text,child_category)
@@ -190,95 +297,25 @@ def create_from_my_texfiles():
         
             
     def make_name_of_article(text:str,category:Category):
-        n = re.findall("^\{\\\\bb\s(.*)\}",text)
+        n = re.findall("^\{\s*([\S]*?)[\s\}\n]",text)
         if n:return n[0]
+        input(text[:50])
         return  "%s %s" % (category,len(category.children())+1)
                 
-    def make_article_with_problem(name:str,text:str,parent_category:Category):
+    def make_article_with_problem(name:str,article_text:str,parent_category:Category):
         article = Article.objects.create(
             name = name,
             parent = parent_category
             )
-        questions = re.findall("\n\\\\bqu((?:.*\n)*?)\\\\equ",text)
+        questions = re.findall("\\\\bqu((?:.*?\n)*?)\\\\equ",article_text)
         for text in questions:
-            problem = make_problem(text,article)
-            problem.articles.add(article)
+            problem_in_my_tex = TextOfOneProblemInMyTeX(text)
+            problem_in_my_tex.create_model(article)
         return article
-                
-    def make_problem(text:str,article:Article):
-        problem = Problem.objects.create(
-            name = problem_name(text,article),
-            text = problem_text(text),
-            source = problem_source(text),
-            answer =  problem_answer(text)
-        )
-        print("new Problem「%s」" % problem)
-        return problem
-                
-    FROM_MYTEX_DESCRIPTION_TO_JAX = [["\r",""]]
-    FROM_MYTEX_DESCRIPTION_TO_JAX += [["<","&lt;"],[">","&gt;"],["\\bunsuu","\\displaystyle\\frac"],["\\dlim","\\displaystyle\\lim"],["\\dsum","\\displaystyle\\sum"]]
-    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\vv","\\overrightarrow"],["\\bekutoru","\\overrightarrow"],["\\doo","^{\\circ}"],["\\C","^{\\text{C}}","\\sq{","\\sqrt{"]]
-    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\sq","\\sqrt"],["\\barr","\\left\\{\\begin{array}{l}"],["\\earr","\\end{array}\\right."]]
-    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\PP","^{\\text{P}}"],["\\QQ","^{\\text{Q}}"],["\\RR","^{\\text{R}}"]]
-    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\NEN","\\class{arrow-pp}{}"],["\\NEE","\\class{arrow-pm}{}"],["\\SES","\\class{arrow-mm}{}"],["\\SEE","\\class{arrow-mp}{}"]]
-    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\NE","&#x2197;"],["\\SE","&#x2198;"],["\\xlongrightarrow","\\xrightarrow"]]
-    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\hfill □","<p class = 'end'>□</p>"]]
-    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\bf\\boldmath", "\\bb"],["\n}\n","\n"],["\\bf", "\\bb"]]
-    FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\newpage",""],["\\iffigure",""],["\\fi",""],["\\ifkaisetu",""],["\\begin{mawarikomi}{}{",""],["\\end{mawarikomi}",""],["\\vfill",""],["\\hfill",""],["\\Large",""]]
-    for j in range(10):
-        FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\MARU{%s}" % str(j),str("&#931%s;" % str(j+1))]]
-        
-    def problem_text(text:str):
-        result = text
-        for r in FROM_MYTEX_DESCRIPTION_TO_JAX:
-            result = result.replace(r[0],r[1])
-        result = text_transform.transform_dint(result,"{","}")
-        result = re.sub("%+[^\n]*\n","\n",result)
-        result = text_transform.itemize_to_ol(result)
-        result = text_transform.item_to_li(result)
-        result = re.sub("\$([\s\S]+?)\$"," $\\1$ ",result)
-        result = re.sub("\\\\vspace{.*?}","",result)
-        
-        result = re.sub("^\s*{\\\\bb\s*(.+)}.*\n","",result)
-        result = re.sub("\\\\hfill\((.*)\)","",result)
-        result = re.sub("\n\\\\begin{解答[\d]*}[^\n]*\n([\s\S]+?)\\\\end{解答[\d]*}","",result)
-        
-        result = result.replace("\\ ","~")
-        result = result.replace("\\~","\\\\")
-        result = re.sub(r"\\\s",r"\\\\ ",result)
-        return result
-    
-    def test_problem_text():
-        test_input = "$\sum_{k=1}k^2$"
-        correct_output = " $\sum_{k=1}k^2$ "
-        test_output = problem_text(test_input)
-        if correct_output==test_output:
-            print("problem_text:OK")
-            return 
-        input("problem_text:%s→%s⇄%s" % (test_input,test_output,correct_output))
-        
-    test_problem_text()
-            
-    def problem_name(text:str,article:Article):
-        print(text)
-        text = text.replace("\\Large","").replace("\\mathmode","")
-        names = re.findall("^[\s]*\%*\{\\\\bb[\s](.+)\}",text)
-        if names:return names[0].replace("\\fi","").replace("\\ifkaisetu","")
-        num_in_article = article.problem_set.count()+1
-        return "%s 問題%s" % (article,num_in_article)
-        
-    def problem_source(text:str):
-        sources = re.findall("\\\\hfill\((.*)\)",text)
-        if sources:return sources[0]
-        return ""
-        
-    def problem_answer(text:str):
-        answers = re.findall("\n\\\\begin\{解答[\d]*\}[^\n]*\n([\s\S]+?)\\\\end\{解答[\d]*\}",text)
-        if answers:return answers[0]
-        return ""
     
     Category.objects.filter(name = "講師関係").delete()
     create_from_my_dir(KOUSIKANKEI_PATH,None)
+
 
 KAKOMON_PATH = '/Users/greenman/Library/Mobile Documents/com~apple~CloudDocs/旧帝大過去問'
 

@@ -40,7 +40,13 @@
   <ol class="problems">
     {% for problem in article.problem_set.all %}
     <li class="linkdiv">
-      {% include "model_link.html" with model=problem %}
+      {% comment %} {% include "model_link.html" with model=problem %} {% endcomment %}
+      <a href="{{ problem.get_absolute_url }}">
+        <span> {{ problem }}</span>
+        <p class="text tex">
+          {{ problem.text | safe }}
+        </p>
+      </a>
     </li>
     {% endfor %}
   </ol>
