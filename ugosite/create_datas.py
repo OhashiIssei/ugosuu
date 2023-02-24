@@ -17,8 +17,74 @@ import util.normalize as normalize
 
 from .models import Article,Category,Term
 
+from .models import Subject,Chapter,Section,Subsection
+
 import util.text_transform as text_transform
 from ugosite.models import Problem
+
+MEDIA_LOCAL_PATH = "/Users/greenman/local_django_projects/ugosuu/media_local"
+
+class TitleOfFourStep:
+    def __init__(self,text:str):
+        self.text = text.replace("　"," ")
+        
+    def type_of_article(self):
+        if re.match("[０-９]\s|1[0-9]\s",self.text): return "BAS"
+        if re.match("研究\s",self.text): return "STU"
+        if re.match("発展\s",self.text): return  "DEV"
+        if re.match("補\s",self.text): return "SUP"
+        # if re.search("演習問題",self.text) : return "PRA"
+        return ""
+        
+    def name_of_category(self):
+        result = self.text
+        result = re.sub("\s(\w)\s(\w)$"," \\1\\2",result)
+        result = re.sub("(^第[０-９]章\s)","",result)
+        result = re.sub("(^第[0-9]章\s)","",result)
+        result = re.sub("(^第[０-９]節\s)","",result)
+        result = re.sub("(^[０-９]\s)","",result)
+        result = re.sub("(^研究\s)","",result)
+        result = re.sub("(^補\s)","",result)
+        result = re.sub("(^発展\s)","",result)
+        return result
+        
+    def is_article_title(self):
+        if self.type_of_article():return True
+        return False
+    
+    def is_chapter_title(self):
+        if re.match("第[０-９]章",self.text):return True
+        return False
+    
+    def is_section_title(self):
+        if re.match("第[０-９]節",self.text):return True
+        return False
+    
+    def create_model(self):
+        if self.is_chapter_title():
+            chapter,created = Chapter.objects.get_or_create(
+                name = self.name_of_category(),
+                subject = Subject.objects.last()
+            )
+            if created:print(f"Chapter「{chapter}」をgetしました")
+            else:print(f"Chapter「{chapter}」をcreateしました")
+        if self.is_section_title():
+            section,created = Section.objects.get_or_create(
+                name = self.name_of_category(),
+                chapter = Chapter.objects.last()
+            )
+            if created:print(f"Section「{section}」をgetしました")
+            else:print(f"Section「{section}」をcreateしました")
+        if self.is_article_title():
+            article,created = Article.objects.get_or_create(
+                name = self.text,
+                section = Section.objects.last()
+            )
+            if created:print(f"Article「{article}」をgetしました")
+            else:print(f"Article「{article}」をcreateしました")
+        
+
+FOUR_STEP_PATH =  f"{MEDIA_LOCAL_PATH}/four_step"
 
 FOUR_STEP_DATA = [
     ["I","k4step_b1a.xlsx",0],
@@ -27,87 +93,31 @@ FOUR_STEP_DATA = [
     ["B",'k4step_b2b.xlsx',1],
     ["III",'k4step_b3.xlsx',0]
 ]
-    
-MEDIA_LOCAL_PATH = "/Users/greenman/local_django_projects/ugosuu/media_local"
-
-FOUR_STEP_PATH =  f"{MEDIA_LOCAL_PATH}/four_step"
 
 def create_categories_form_four_step():
-    
-    def article_type(title:str):
-        if re.match("[０-９]\s|1[0-9]\s",title): return "BAS"
-        if re.match("研究\s",title): return "STU"
-        if re.match("発展\s",title): return  "DEV"
-        if re.match("補\s",title): return "SUP"
-        if re.search("演習問題",title) : return "PRA"
-        return ""
-    
-    def parent_of_article(title:str):
-        type = article_type(title)
-        if type == "PRA":
-            return Category.objects.filter(type = "CHA").last()
-        return Category.objects.filter(type__in = ["CHA","SEC"]).last()
-
-    def article_from_title(title:str):
-        result = Article(name = title)
-        result.type = article_type(title)
-        # if not result.type: return result
-        result.parent = parent_of_article(result.type)
-        print("new Article: %s (parent: %s)" % (result, result.parent))
-        return result
-    
-    def type_of_category(title:str):
-        if re.match("第[０-９]章",title):return "CHA"
-        if re.match("第[０-９]節",title):return "SEC"
         
-    def parent_of_category(title:str):
-        type = type_of_category(title)
-        if type=="CHA":return Category.objects.filter(type = "SUB").last()
-        if type=="SEC":return Category.objects.filter(type = "CHA").last()
-    
-    def category_from_title(title:str):
-        result = Category(name = title)
-        result.type = type_of_category(title)
-        result.parent = parent_of_category(title)
-        name = title
-        name = re.sub("\s(\w)\s(\w)$"," \\1\\2",name)
-        name = re.sub("(^第[０-９]章\s)","",name)
-        name = re.sub("(^第[0-9]章\s)","",name)
-        name = re.sub("(^第[０-９]節\s)","",name)
-        name = re.sub("(^[０-９]\s)","",name)
-        name = re.sub("(^研究\s)","",name)
-        name = re.sub("(^補\s)","",name)
-        name = re.sub("(^発展\s)","",name)
-        result.name = name
-        return result
-    
-    Category.objects.filter(name = "高校数学").delete()
-    # Category.objects.all().delete()
-    parent_category = Category.objects.create(name = "高校数学")
-    for data in FOUR_STEP_DATA:
-        child_category = Category.objects.create(
-            name = "数学%s" % data[0],
-            parent = parent_category,
-            type = "SUB",
-        )
-        print("new Category: %s (parent: %s)" % (child_category, child_category.parent))
-        
-        file_path = '%s/%s' % (FOUR_STEP_PATH,data[1])
-        loaded_workbook = openpyxl.load_workbook(file_path)
-        sheet_num = data[2]
-        worksheet = loaded_workbook.worksheets[sheet_num]
-    
+    def create_categorys_and_articles(worksheet):
         for i in range(1000):
             if i <3 : continue
             cell = worksheet.cell(i,2)
-            if not cell.value : continue
-            title = cell.value.replace("　"," ")
-            sub_category = category_from_title(title)
-            if sub_category.type in ["CHA","SEC"]:
-                sub_category.save()
-                print("new Category: %s (parent: %s)" % (sub_category, sub_category.parent))
-                continue
-            article_from_title(title).save()
+            cell_value = cell.value
+            if not cell_value : continue
+            TitleOfFourStep(cell_value).create_model()
+    
+    category,created = Category.objects.get_or_create(name = "高校数学")
+    if created:print(f"Category「{category}」をgetしました")
+    else:print(f"Category「{category}」をcreateしました")
+    for data in FOUR_STEP_DATA:
+        subject,created = Subject.objects.get_or_create(
+            name = "数学%s" % data[0],
+            category = category,
+        )
+        if created:print(f"Subject「{subject}」をgetしました")
+        else:print(f"Subject「{subject}」をcreateしました")
+        excel_file_path = '%s/%s' % (FOUR_STEP_PATH,data[1])
+        loaded_workbook = openpyxl.load_workbook(excel_file_path)
+        worksheet = loaded_workbook.worksheets[data[2]]
+        create_categorys_and_articles(worksheet)
             
             
             
@@ -130,7 +140,38 @@ for j in range(10):
 
 KOUSIKANKEI_PATH = '/Users/greenman/Library/Mobile Documents/com~apple~CloudDocs/講師関係'
 
-class MyTeXfile:
+class MyTeXFolder:
+    def __init__(self,path:str):
+        self.path = path
+        
+    def create_from_my_dir(self,parent_category:Category):
+        print("%sを読み込む" % self.path)
+        category_name = os.path.basename(self.path)
+        child_category = Category.objects.create(
+            name = category_name,
+            parent = parent_category
+        )
+        for base_name in os.listdir(self.path):
+            path = "%s/%s" % (self.path,base_name)
+            if base_name.startswith('.'): continue
+            if "阪大" in base_name: continue
+            if "旧帝大" in base_name: continue
+            if "まとめ" in base_name: continue
+            if base_name.endswith(".tex"):
+                texfile = MyTeXFile(path)
+                if not texfile.has_problem():continue
+                texfile.create_model(child_category)
+                continue
+            if os.path.isdir(path):
+                my_tex_folder = MyTeXFolder(path)
+                my_tex_folder.create_from_my_dir(child_category)
+                continue
+        if not child_category.children():
+            child_category.delete()
+        
+    
+
+class MyTeXFile:
     def __init__(self,path:str):
         self.path = path
         
@@ -144,16 +185,43 @@ class MyTeXfile:
         text = re.sub("\%.*?\n","",text)
         s = re.search("\\\\begin{document}(.*\n)*\\\\end{document}",text)
         if not s: return TextOfMyTeX("")
-        text = s.group().replace("\\sub{","\\subsection{")
+        text = s.group()
         return TextOfMyTeX(text)
     
     def has_problem(self):
         my_tex = self.content_text()
         my_tex = my_tex.replace("bquu","bqu").replace("bQ","bqu").replace("begin{question}","bqu")
-        return my_tex.has_in_regular_expression("\\\\bqu((?:.*\n)*?)\\\\equ")
+        return my_tex.match_in_regular_expression("\\\\bqu")
     
     def subsections_num(self):
         return self.content_text().finded_num_in_regular_expression("\\\\sub")
+    
+    def create_model(self,parent_category:Category):
+        if self.subsections_num()<2:
+            my_text = TextOfOneArticleInMyTeX(self.content_text().translate_to_jax())
+            new_article = my_text.create_model(parent_category)
+            new_article.name = self.name()
+            new_article.save()
+            print("new Article: %s (parent: %s)" % (new_article,new_article.parent))
+            return new_article
+        self.create_category(parent_category)
+        
+    def create_category(self,parent_category:Category):
+        child_category = Category.objects.create(
+            name = self.name(),
+            parent =  parent_category
+        )
+        self.create_subarticles(child_category)
+        
+    def create_subarticles(self,category:Category):
+        text_in_jax = self.content_text().translate_to_jax().replace("\\sub{","\\subsection{")
+        subsections = re.split("\n\\\\subsection",text_in_jax)
+        
+        for subsection_text in subsections[1:]:
+            aticle_text = TextOfOneArticleInMyTeX(subsection_text)
+            article = aticle_text.create_model(category)
+            print("new Article: %s (parent: %s)" % (article,article.parent))
+        return category
     
 class TextOfMyTeX:
     def __init__(self,text:str):
@@ -178,14 +246,34 @@ class TextOfMyTeX:
     def replace(self,target_string:str,replace_string:str):
         return TextOfMyTeX(self.text.replace(target_string,replace_string))
     
-    def has_in_regular_expression(self,regular_expression:str):
-        if re.match(regular_expression,self.text):return True
+    def match_in_regular_expression(self,regular_expression:str):
+        m = re.findall(regular_expression,self.text)
+        if m:return True
         return False
     
     def finded_num_in_regular_expression(self,regular_expression:str):
         return len(re.findall(regular_expression,self.text))
+
+class TextOfOneArticleInMyTeX:
+    def __init__(self,text:str):
+        self.text = text
         
-TextOfMyTeX.test_translate_to_jax()
+    def make_name(self,category:Category):
+        n = re.findall("^\{\s*([\S]*?)[\s\}\n]",self.text)
+        if n:return n[0]
+        # input(self.text[:50])
+        return  "%s %s" % (category,len(category.children())+1)
+                
+    def create_model(self,parent_category:Category):
+        name = self.make_name(parent_category)
+        article = Article.objects.create(
+            name = name,
+            parent = parent_category
+            )
+        questions = re.findall("\\\\bqu((?:.*?\n)*?)\\\\equ",self.text)
+        for text in questions:
+            TextOfOneProblemInMyTeX(text).create_model(article)
+        return article
 
 class TextOfOneProblemInMyTeX:
     def __init__(self,text:str):
@@ -202,7 +290,7 @@ class TextOfOneProblemInMyTeX:
         
         result = re.sub("^\s*\{.+\}.*\n","",result)
         result = re.sub("\\\\hfill\((.*)\)","",result)
-        result = result.replace("\\hfill","")
+        result = re.sub("\\\\hfill","",result)
         result = re.sub("\n\\\\begin{解答[\d]*}[^\n]*\n([\s\S]+?)\\\\end{解答[\d]*}","",result)
         
         # result = result.replace("\\\\","\n")
@@ -222,7 +310,7 @@ class TextOfOneProblemInMyTeX:
         names = re.findall("^[\s]*\{[\s]*(.+)\}",self.text)
         if names:return names[0].replace("\\fi","").replace("\\ifkaisetu","")
         num_in_article = article.problem_set.count()+1
-        return "%s 問題%s" % (article,num_in_article)
+        return "%s 問題%s" % (article.name,num_in_article)
         
     def source(self):
         sources = re.findall("\\\\hfill\((.*)\)",self.text)
@@ -234,109 +322,86 @@ class TextOfOneProblemInMyTeX:
         if answers:return answers[0]
         return ""
     
+    def link(self):
+        links = re.findall("\\\\fbox\{\\\\qrcode\[.*\]\{(.*)\}\}",self.text)
+        if links:return links[0]
+        return ""
+    
     def create_model(self,article:Article):
         return Problem.objects.create(
             name = self.name(article),
             text = self.main_text(),
             source = self.source(),
-            answer =  self.answer()
+            answer = self.answer(),
+            link = self.link()
         ).articles.add(article)
     
-TextOfOneProblemInMyTeX.test_main_text()
-
+    
 def create_from_my_texfiles():
-    
-    ### category
-    
-    def create_from_my_dir(dir_path:str,parent_category:Category):
-        print("%sを読み込む" % dir_path)
-        category_name = os.path.basename(dir_path)
-        child_category = Category.objects.create(
-            name = category_name,
-            parent = parent_category
-        )
-        for base_name in os.listdir(dir_path):
-            path = "%s/%s" % (dir_path,base_name)
-            if base_name.startswith('.'): continue
-            if "阪大" in base_name: continue
-            if "旧帝大" in base_name: continue
-            if "まとめ" in base_name: continue
-            if base_name.endswith(".tex"):
-                texfile = MyTeXfile(path)
-                if texfile.has_problem():continue
-                create_from_my_texfile(texfile,child_category)
-                continue
-            if os.path.isdir(path):
-                create_from_my_dir(path,child_category)
-                continue
-        if not child_category.children():
-            child_category.delete()
-    
-    ### article or category
-    
-    def create_from_my_texfile(texfile:MyTeXfile,parent_category:Category):
-        
-        if texfile.subsections_num()<2:
-            article_name = texfile.name()
-            text = texfile.content_text().translate_to_jax()
-            new_article = make_article_with_problem(article_name,text,parent_category)
-            print("new Article: %s (parent: %s)" % (new_article,new_article.parent))
-            return new_article
-        
-        child_category = Category.objects.create(
-            name = texfile.name(),
-            parent =  parent_category
-        )
-        text_in_jax = texfile.content_text().translate_to_jax()
-        subsections = re.split("\n\\\\subsection",text_in_jax)
-        for text in subsections[1:]:
-            article_name = make_name_of_article(text,child_category)
-            article = make_article_with_problem(article_name,text,child_category)
-            print("new Article: %s (parent: %s)" % (article,article.parent))
-        return child_category
-        
-            
-    def make_name_of_article(text:str,category:Category):
-        n = re.findall("^\{\s*([\S]*?)[\s\}\n]",text)
-        if n:return n[0]
-        input(text[:50])
-        return  "%s %s" % (category,len(category.children())+1)
-                
-    def make_article_with_problem(name:str,article_text:str,parent_category:Category):
-        article = Article.objects.create(
-            name = name,
-            parent = parent_category
-            )
-        questions = re.findall("\\\\bqu((?:.*?\n)*?)\\\\equ",article_text)
-        for text in questions:
-            problem_in_my_tex = TextOfOneProblemInMyTeX(text)
-            problem_in_my_tex.create_model(article)
-        return article
+    TextOfMyTeX.test_translate_to_jax()
+    TextOfOneProblemInMyTeX.test_main_text()
     
     Category.objects.filter(name = "講師関係").delete()
-    create_from_my_dir(KOUSIKANKEI_PATH,None)
+    MyTeXFolder(KOUSIKANKEI_PATH).create_from_my_dir(None)
 
 
 KAKOMON_PATH = '/Users/greenman/Library/Mobile Documents/com~apple~CloudDocs/旧帝大過去問'
 
+class TeXYearFolderOfKakomon:
+    def __init__(self,path:str):
+        self.path = path
+        
+    def create_article(self,parent_category:Category):
+        article = Article.objects.create(
+            name = "%s %s" % (parent_category.name,os.path.basename(self.path)),
+            type = "TER",
+            path = self.path,
+            parent = parent_category
+        )
+        for file in sorted(os.listdir(self.path)):
+            if not file.endswith('.tex'):continue
+            problem = Problem().make_from_kakomon_texfile("%s/%s" % (self.path,file))
+            problem.articles.add(article)
+        print("new Article: %s (parent: %s)" % (article,article.parent))
+        
+class TeXUnivFolderOfKakomon:
+    def __init__(self,path:str):
+        self.path = path
+        
+    def name(self):
+        return os.path.basename(self.path)
+    
+    def univ_name(self):
+        result = self.name()[3:]
+        for r in [["hokudai","北大"],["kyoto","京大"],["tokyo","東大"],["kyushu","九大"],["nagoya","名大"],["osaka","阪大"],["titech","東工大"],["tohoku","東北大"]]:
+            result = result.replace(r[0],r[1])
+        return result
+    
+    def create_univ_category(self,category:Category):
+        univ_category = Category.objects.create(
+            name = self.univ_name(),
+            type = "TER",
+            parent = category,
+        )
+        print("new Category: %s (parent: %s)" % (univ_category,univ_category.parent))
+        return univ_category
+        
+    def create_artcles(self,category:Category):
+        for year in sorted(os.listdir(self.path)):
+            if year.startswith('.'):continue
+            TeXYearFolderOfKakomon(f"{self.path}/{year}").create_article(category)
+
 def create_form_kakomon_files():
+        
     parent_category = Category.objects.create(name = "大学別62年過去問題集")
+    
     for univ in sorted(os.listdir(KAKOMON_PATH)):
         if univ.startswith('.'): continue
-        name = univ[3:]
-        for r in [["hokudai","北大"],["kyoto","京大"],["tokyo","東大"],["kyushu","九大"],["nagoya","名大"],["osaka","阪大"],["titech","東工大"],["tohoku","東北大"]]:
-            name = name.replace(r[0],r[1])
-        child_category = Category.objects.create(
-            name = name,
-            type = "TER",
-            parent = parent_category,
-        )
-        univ_path = "%s/%s" % (KAKOMON_PATH,univ)
-        print("new Category: %s (parent: %s)" % (child_category,child_category.parent))
-        for year in sorted(os.listdir(univ_path)):
-            if year.startswith('.'):continue
-            year_path = "%s/%s" % (univ_path,year)
-            Article(parent = child_category).make_from_kakomon_folder(year_path)
+        univ_folder = TeXUnivFolderOfKakomon("%s/%s" % (KAKOMON_PATH,univ))
+        univ_category = univ_folder.create_univ_category(parent_category)
+        univ_folder.create_artcles(univ_category)
+            
+    
 
 # ICONS_PATH =  "/Users/greenman/Desktop/web-projects/django_projects/ugosite/media_local/icons"
 

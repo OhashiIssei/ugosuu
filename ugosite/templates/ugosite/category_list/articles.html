@@ -1,0 +1,7 @@
+<ul>
+  {% for article in model.article_set.all %}
+    <li class ="folder linkdiv" itemid="article_{{ article.id }}">
+      {% include "model_link.html" with model=article %}
+    </li>
+  {% endfor %}
+</ul>

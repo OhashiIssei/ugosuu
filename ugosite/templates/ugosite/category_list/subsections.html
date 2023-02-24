@@ -1,0 +1,10 @@
+<ul>
+  {% for subsection in model.subsection_set.all %}
+    <li class ="folder linkdiv" itemid="category_{{ subsection.id }}">
+      <a href="#">
+        {{ subsection.name }}
+      </a>
+      {% include "ugosite/category_list/articles.html" with model=subsection %}
+    </li>
+  {% endfor %}
+</ul>

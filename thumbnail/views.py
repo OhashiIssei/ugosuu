@@ -41,4 +41,4 @@ def display_status():
     print("Thumbnailの個数: %s" % len(Thumbnail.objects.all()))
     print("ThumbnailContentの個数: %s" % len(ThumbnailContent.objects.all()))
 
-display_status()
+# display_status()

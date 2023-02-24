@@ -9,17 +9,17 @@ class TermAdmin(admin.ModelAdmin):
 admin.site.register(Term, TermAdmin)
 
 
-class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'parent','created_date', 'type')
-    # inlines = [ProblemsInline]
+# class ArticleAdmin(admin.ModelAdmin):
+#     list_display = ('name', 'created_date', 'type')
+#     # inlines = [ProblemsInline]
 
-admin.site.register(Article, ArticleAdmin)
+# admin.site.register(Article, ArticleAdmin)
 
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name' ,'parent','type')
-    # inlines = [ProblemsInline]
+# class CategoryAdmin(admin.ModelAdmin):
+#     list_display = ('name' ,'parent','type')
+#     # inlines = [ProblemsInline]
 
-admin.site.register(Category, CategoryAdmin)
+# admin.site.register(Category, CategoryAdmin)
 
 class ProblemAdmin(admin.ModelAdmin):
     list_display = ('name' ,'text')

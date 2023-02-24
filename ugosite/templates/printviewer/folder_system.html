@@ -1,0 +1,76 @@
+<script defer>
+    folderSystem()
+    function folderSystem(){
+        for(let folder of document.querySelectorAll("#folders .folder")){
+            folder.querySelector(":scope>a").addEventListener("click",()=>selectFolder(folder)) 
+        }
+        function selectFolder(folder){
+            folder.parentNode.querySelectorAll(".folder").forEach((f)=>f.classList.remove("selected"))
+            folder.classList.add("selected")
+        }
+        function pool(folder){
+            while(poollist.firstChild){
+                poollist.removeChild(poollist.firstChild)
+            }
+            document.getElementById("files").appendChild(folder)
+            for(let file of folder.querySelectorAll(".file")){
+                console.log("poollistに"+file+"を追加する")
+                file.addEventListener("click",()=>selectFile(file))
+            }
+            function selectFile(file){
+                    file.parentNode.querySelectorAll(".file").forEach((f)=>f.classList.remove("selected"))
+                    file.classList.add("selected")
+                    display(file.cloneNode(true))
+                }
+        }
+        const detailDiv = document.getElementById("file-detail")
+        function display(file){
+            console.log(file+"をdetailに表示します")
+            const detail = file.lastElementChild
+            while(detailDiv.firstChild){
+                detailDiv.removeChild(detailDiv.firstChild)
+            }
+            detailDiv.appendChild(detail)
+            if(detailDiv.querySelector(".player")){
+                width = detailDiv.clientWidth
+                add_video(file.getAttribute("itemid"),width)
+            }
+        }
+
+        
+        
+        //article内のproblemまで表示させるための関数
+        document.querySelectorAll("#folders .file").forEach(
+            (file)=>file.firstElementChild.addEventListener("click",()=>createTable(file))
+        )
+        function createTable(file){
+            file.parentNode.querySelectorAll(".file").forEach((f)=>f.classList.remove("selected"))
+            file.classList.add("selected")
+            display(file.cloneNode(true))
+            for(let problem of file.querySelectorAll(".problems .problem")){
+                const itemid = problem.getAttribute("itemid")
+                detailDiv.querySelector('.problem[itemid="'+itemid+'"]').setAttribute("id",itemid)
+            }
+        }
+
+        // 閲覧項目のハイライト
+        document.querySelector("main").addEventListener("scroll",function(){
+            let nowTop = 1000000
+            let disP
+            if(detailDiv.querySelectorAll(".problem")){
+                for(let problem of detailDiv.querySelectorAll(".problem")){
+                    let top = problem.getBoundingClientRect().top
+                    if(top>60 && top<nowTop){
+                        nowTop = top
+                        disP = problem
+                        console.log("現在の表示問題は"+problem.querySelector("a").textContent+"です。")
+                    } 
+                }
+                document.querySelectorAll(".problem").forEach((l)=>l.classList.remove("selected"))
+                let id = disP.getAttribute("id")
+                document.querySelectorAll('.problem[itemid="'+id+'"]').forEach((l)=>l.classList.add("selected"))
+            }
+        })
+    }
+</script>
+

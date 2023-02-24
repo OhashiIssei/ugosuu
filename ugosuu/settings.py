@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Add our new application
     'ugosite.apps.UgositeConfig', 
+    'printviewer.apps.PrintviewerConfig', 
+    'kakomon.apps.KakomonConfig', 
     'youtube.apps.YoutubeConfig', 
     'thumbnail.apps.ThumbnailConfig', 
     'video_search.apps.VideoSearchConfig', 

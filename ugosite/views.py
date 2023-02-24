@@ -7,11 +7,13 @@ import youtube.views ,thumbnail.views , video_search.views
 
 # ここからがUgosuu
 
-from .models import Category, Article, Term,Problem
+from ugosite.models import Category, Article, Term,Problem
 from youtube.models import Video
+from printviewer.models import Folder,Print
 from django.contrib.auth.models import User #Blog author or author
 from django.views import generic
 
+from .models import Subject,Chapter,Section,Subsection
 
 import os 
 
@@ -37,7 +39,8 @@ def index(request):
         'num_visits': num_visits,
         'num_videos' : Video.objects.all().count(),
         'article_list' : Article.objects.all()[:3],
-        'category_list' : Category.objects.filter(parent__isnull=True),
+        'category_list' : Category.objects.all(),
+        'folder_list' : Folder.objects.filter(parent_folder__isnull = True),
     }
 
     # Render the HTML template index.html with the data in the context variable
@@ -46,23 +49,6 @@ def index(request):
 
 class ArticleDetailView(generic.DetailView):
     model = Article
-    def get_context_data(self, **kwargs):
-        context = super(ArticleDetailView,self).get_context_data(**kwargs)
-        url = "articles/"+str(self.kwargs['pk'])+".html"
-        context['template'] = os.path.isfile("ugosite/templates/"+url)
-        context['html'] = url
-        # article = context["article"]
-        # category = article.parent
-        # articles = Article.objects.filter(parent = category)
-        # index = list(articles).index(article)
-        # if not len(articles) == index+1:
-        #     context['next'] = articles[index+1].get_absolute_url()
-        # if not index-1<0:
-        #     context['prev'] = articles[index-1].get_absolute_url()
-        # context['up'] = category.get_absolute_url()
-        # context['ancestors'] = article.ancestors()
-        # context['category'] = article.category
-        return context
 
 class ArticleListView(generic.ListView):
     model = Article
@@ -129,7 +115,10 @@ class ProblemListView(generic.ListView):
 
 ### データ書き換え層への接続
 
-from ugosite.create_datas import create_categories_form_four_step,create_from_my_texfiles,create_form_kakomon_files
+from ugosite.create_datas import create_categories_form_four_step
+
+from printviewer.create_datas import create_from_my_texfiles
+from kakomon.create_datas import create_form_kakomon_files
 
 from youtube.create_datas import Download_Id,Download_Response,Create_Models,Add_Relation
 from youtube.create_datas import ChannelSectionResponse,PlaylistResponse,PlaylistItemResponse,VideoResponse
@@ -138,12 +127,21 @@ from youtube.models import VideoGenre,VideoType,University,Source
 
 def reflesh_Models():
     Category.objects.all().delete()
+    
+    Subject.objects.all().delete()
+    Chapter.objects.all().delete()
+    Section.objects.all().delete()
+    Subsection.objects.all().delete()
     Article.objects.all().delete()
+    
+    
+    Folder.objects.all().delete()
+    Print.objects.all().delete()
     Problem.objects.all().delete()
     
-    # create_categories_form_four_step()
+    create_categories_form_four_step()
     create_from_my_texfiles()
-    # create_form_kakomon_files()
+    create_form_kakomon_files()
     
     # Download_Id().channelSections()
     # Download_Id().playlists()
@@ -170,7 +168,7 @@ def reflesh_Models():
     # Add_Relation().videos_to_terms()
 
 
-reflesh_Models()
+# reflesh_Models()
 
 # for video_genre in VideoGenre.objects.all():
 #     print(video_genre.category())
@@ -217,7 +215,19 @@ class ArticleGenerater:
 
 def display_status():
     print("Categoryの個数: %s" % Category.objects.count())
+    print("")
+    
+    print("Subjectの個数: %s" % Subject.objects.count())
+    print("Chapterの個数: %s" % Chapter.objects.count())
+    print("Sectionの個数: %s" % Section.objects.count())
+    print("Subsectionの個数: %s" % Subsection.objects.count())
     print("Articleの個数: %s" % Article.objects.count())
+    print("")
+    
+    print("Folderの個数: %s" % Folder.objects.count())
+    print("Printの個数: %s" % Print.objects.count())
+    print("")
+    
     print("Problemの個数: %s" % Problem.objects.count())
     print("")
     
@@ -248,4 +258,4 @@ def display_status():
     print("")
 
 
-display_status()
+# display_status()

@@ -1,0 +1,11 @@
+<ul>
+  {% for section in model.section_set.all %}
+    <li class ="folder linkdiv" itemid="category_{{ section.id }}">
+      <a href="#">
+        {{ section.name }}
+      </a>
+      {% include "ugosite/category_list/subsections.html" with model=section %}
+      {% include "ugosite/category_list/articles.html" with model=section %}
+    </li>
+  {% endfor %}
+</ul>

@@ -38,9 +38,14 @@
   <h2>カテゴリ</h2>
   <ul>
     {% for category in category_list %}
-      <li>
-        <a href="{{ category.get_absolute_url }}">{{ category.name }}</a>
-      </li>
+    {% include "model_link.html" with model=category %}
+    {% endfor %}
+  </ul>
+
+  <h2>プリントフォルダ</h2>
+  <ul>
+    {% for folder in folder_list %}
+      {% include "model_link.html" with model=folder %}
     {% endfor %}
   </ul>
 {% endblock %}

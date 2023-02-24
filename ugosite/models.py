@@ -1,7 +1,6 @@
 from django.db import models
 
 from django.urls import reverse #Used to generate URLs by reversing the URL patterns
-from django.contrib.auth.models import User #Blog author or commenter
 
 
 from django.utils import timezone
@@ -15,9 +14,6 @@ import sys,os
 
 import codecs
 import openpyxl
-
-import pathlib
-import datetime
 
 import codecs
 import re
@@ -47,62 +43,7 @@ class Term(models.Model):
 
 
 import re
-
-CATEGORY_DATA = [
-    ["I","k4step_b1a.xlsx",0],
-    ["A",'k4step_b1a.xlsx',1],
-    ["II",'k4step_b2b.xlsx',0],
-    ["B",'k4step_b2b.xlsx',1],
-    ["III",'k4step_b3.xlsx',0]
-]
-
-class MyFile(models.Model):
-    title = models.CharField(max_length=200, blank=True, help_text='記事のタイトルを入力してください')
-
-ARTICLE_TYPE_CHOICES = [
-    ('BAS', '基本'), 
-    ('STU', '研究'), 
-    ('DEV', '発展'), 
-    ('SUP', '補足'), 
-    ('PRA', '演習'), 
-    ('TER', 'テーマ'), 
-    ('CAT', 'カテゴリ'), 
-    ('NOT', 'ノート'), 
-    ('OTH', 'その他'), 
-]
-
-class Article(MyFile):
-    name = models.CharField(max_length=200, default="name")
-    path = models.CharField(max_length=200,default="/" ,blank=True)
-    description = models.TextField(max_length=1000, blank=True)
-    content = models.TextField(max_length=2000, blank=True, help_text='記事の内容をHTML形式で入力してください')
-    type =  models.CharField(max_length=200, default = "OTH", choices = ARTICLE_TYPE_CHOICES)
-    parent = models.ForeignKey('Category', on_delete = models.CASCADE)
-    # related_terms = models.ManyToManyField(Term, help_text='この記事に関連する用語を選んでください')
-
-    created_date = models.DateTimeField(default=timezone.now)
-    update_date = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        ordering = ['name']
-
-    def get_absolute_url(self):
-        return reverse('article-detail', args=[str(self.id)])
-
-    def __str__(self):
-        return self.name
-
-    def make_from_kakomon_folder(self,path):
-        self.name = "%s %s" % (self.parent.name,os.path.basename(path))
-        self.type = "TER"
-        self.path = path
-        self.save()
-        for file in sorted(os.listdir(path)):
-            if not file.endswith('.tex'):continue
-            problem = Problem().make_from_kakomon_texfile("%s/%s" % (path,file))
-            problem.articles.add(self)
-        print("new Article: %s (parent: %s)" % (self,self.parent))
-
+    
 CATEGORY_TYPE_CHOICES = [
     ('SUB', '科目'), 
     ('CHA', '章'), 
@@ -112,16 +53,12 @@ CATEGORY_TYPE_CHOICES = [
     ('OTH', 'その他'), 
 ]
 
-class Category(MyFile):
-    """カテゴリを表すモデル"""
-    name = models.CharField(max_length=200, default="name")
+class Category(models.Model):
+    name = models.CharField(max_length=200, default="name", unique=True)
     description = models.TextField(max_length=10000, blank=True)
-    type =  models.CharField(max_length=200, default="OTH", choices=CATEGORY_TYPE_CHOICES)
-    icon = models.CharField(max_length=10000,  blank=True, help_text='このカテゴリのアイコンSVG')
-    parent = models.ForeignKey('Category', on_delete = models.CASCADE, null=True)
 
     class Meta:
-        ordering = ['name']
+        ordering = ['id']
 
     def get_absolute_url(self):
         return reverse('category-detail', args=[str(self.id)])
@@ -142,8 +79,69 @@ class Category(MyFile):
             module = module.parent
         return ancestors
     
-    def isChapter(self):
-        return self.type=="CHA"
+class Subject(models.Model):
+    name = models.CharField(max_length=200, default="name")
+    category = models.ForeignKey(Category, on_delete = models.CASCADE, null=True)
+    
+    def __str__(self):
+        return self.name
+    
+class Chapter(models.Model):
+    name = models.CharField(max_length=200, default="name")
+    subject = models.ForeignKey(Subject, on_delete = models.CASCADE, null=True)
+    # icon = models.CharField(max_length=10000,  blank=True, help_text='このカテゴリのアイコンSVG')
+    
+    def __str__(self):
+        return self.name
+    
+class Section(models.Model):
+    name = models.CharField(max_length=200, default="name")
+    chapter = models.ForeignKey(Chapter, on_delete = models.CASCADE, null=True)
+    
+    def __str__(self):
+        return self.name
+    
+class Subsection(models.Model):
+    name = models.CharField(max_length=200, default="name")
+    section =  models.ForeignKey(Section, on_delete = models.CASCADE, null=True)
+    
+    def __str__(self):
+        return self.name
+
+ARTICLE_TYPE_CHOICES = [
+    ('BAS', '基本'), 
+    ('STU', '研究'), 
+    ('DEV', '発展'), 
+    ('SUP', '補足'), 
+    ('PRA', '演習'), 
+    ('TER', 'テーマ'), 
+    ('CAT', 'カテゴリ'), 
+    ('NOT', 'ノート'), 
+    ('OTH', 'その他'), 
+]
+
+class Article(models.Model):
+    name = models.CharField(max_length=200, default="name")
+    path = models.CharField(max_length=200,default="/" ,blank=True)
+    description = models.TextField(max_length=1000, blank=True)
+    content = models.TextField(max_length=2000, blank=True, help_text='記事の内容をHTML形式で入力してください')
+    type =  models.CharField(max_length=200, default = "OTH", choices = ARTICLE_TYPE_CHOICES)
+    # parent = models.ForeignKey(Category, on_delete = models.CASCADE, blank=True,null=True)
+    section = models.ForeignKey(Section, on_delete = models.CASCADE, blank=True,null=True)
+    
+    # related_terms = models.ManyToManyField(Term, help_text='この記事に関連する用語を選んでください')
+
+    created_date = models.DateTimeField(default=timezone.now)
+    update_date = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['name']
+
+    def get_absolute_url(self):
+        return reverse('article-detail', args=[str(self.id)])
+
+    def __str__(self):
+        return self.name
             
 LEVEL_CHOICES = [
     ('BASIC', '基礎レベル'), 
@@ -154,13 +152,17 @@ LEVEL_CHOICES = [
 
 import util.text_transform as text_transform
 
+from printviewer.models import Folder,Print
+
 class Problem(models.Model):
     """問題を表すモデル"""
     name = models.CharField(max_length=200)
     text = models.TextField(max_length=1000)
     articles = models.ManyToManyField(Article)
+    prints = models.ManyToManyField(Print)
     source = models.CharField(max_length=50,null=True, blank=True)
     answer = models.TextField('example_answer', max_length=10000, null=True, blank=True)
+    link = models.URLField(max_length=50,null=True, blank=True)
 
     def get_admin_url(self):
         return "http://127.0.0.1:8000/admin/ugosite/problem/%s/" % self.id
@@ -170,39 +172,6 @@ class Problem(models.Model):
 
     def __str__(self):
         return self.name
-
-    def make_from_kakomon_texfile(self,path:str):
-        with codecs.open(path, 'r', encoding='shift_jis') as f:
-            text = f.read()
-        t = re.findall("{\\\\huge\s\d.*}\r\n([\s\S]*?)\\\\end{flushleft}",text)
-        if not t:
-            print(text)
-            sys.exit()
-        article = Article.objects.filter(path=os.path.dirname(path))[0]
-        atricleName = article.name
-        num =  re.findall("_(\w+).tex",os.path.basename(path))[0]
-        if re.match("\d_\d",num):
-            division = "文"
-            num = num[2:]
-        else:
-            division = "理"
-        self.name = "%s %s系 第%s問" % (atricleName,division,num)
-        self.source = self.name
-        text = t[0]
-        text = text.replace("<","&lt;").replace(">","&gt;")
-        text = text.replace("\r","")
-        text = text_transform.itemize_to_ol(text)
-        text = text_transform.item_to_li(text)
-        print(text)
-        text = re.sub("\\\\hspace{\dzw}","",text)
-        text = text.replace("\\hspace{1zw}","~").replace('\\ding{"AC}',"&#9312;").replace('\\ding{"AD}',"&#9313;").replace('\\ding{"AE}',"&#9314;")
-        text = re.sub("\$([\s\S]+?)\$"," $\\1$ ",text)
-        text = text.replace("$ ，","$，")
-        text = text.replace("\\\\","<br>")
-        self.text = text
-        self.save()
-        print("new Problem: %s" % self)
-        return self
     
 
 from youtube.models import Playlist,Video

@@ -25,6 +25,18 @@ urlpatterns += [
     path('problems/', views.ProblemListView.as_view(), name='problems'),
 ]
 
+from printviewer import views as printviewer
+
+urlpatterns += [
+    path('folder-detail/<int:pk>', printviewer.FolderDetailView.as_view(), name='folder-detail'),
+    path('folders/', printviewer.FolderListView.as_view(), name='folders'),
+]
+
+urlpatterns += [
+    path('print-detail/<int:pk>', printviewer.PrintDetailView.as_view(), name='print-detail'),
+    path('prints/', printviewer.PrintListView.as_view(), name='prints'),
+]
+
 import video_search,youtube
 
 urlpatterns += [

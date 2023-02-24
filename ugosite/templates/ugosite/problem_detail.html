@@ -25,6 +25,11 @@
       <p class = "tex">{{ problem.answer | safe }}</p>
   {% endif %}
 
+  {% if problem.link %}
+  <details><summary><strong>リンク</strong></summary>
+    <iframe src="{{ problem.link }}?embed" width="100%" height="600" allowfullscreen style="border: 1px solid #e4e4e4;border-radius: 4px;" frameborder="0"></iframe>
+  {% endif %}
+
   {% if problem.video_set.first %}
   <details><summary><strong>解説動画</strong></summary>
     {% include "youtube-embedding.html" with video=problem.video_set.first %}

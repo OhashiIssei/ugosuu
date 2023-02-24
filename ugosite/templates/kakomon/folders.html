@@ -1,0 +1,13 @@
+<ul>
+  {% for folder in model.folder_set.all %}
+    <li class ="folder linkdiv" itemid="{{ folder.id }}">
+        <a href="#">{{ folder.name }}</a>
+        {% include "printviewer/folders.html" with model=folder %}
+    </li>
+  {% endfor %}
+  {% for print in folder.print_set.all %}
+    <li class="file linkdiv" itemid="{{ print.id }}">
+        {% include "model_link.html" with model=print %}
+    </li>
+  {% endfor %}
+</ul>

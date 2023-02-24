@@ -1,0 +1,36 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2>{{ print.name }}</h2>
+
+  <p>
+  {{ print.description | safe}}
+  </p>
+
+  <p>
+  {{ print.content | safe}}
+  </p>
+
+
+  {% if template %}
+  <div class ="tex">{% include html %}</div>
+  {% endif %}
+
+
+  {% if print.problem_set.all %}
+  <ol class="problems">
+    {% for problem in print.problem_set.all %}
+    <li class="linkdiv">
+      {% comment %} {% include "model_link.html" with model=problem %} {% endcomment %}
+      <a href="{{ problem.get_absolute_url }}">
+        <span> {{ problem }}</span>
+        <p class="text tex">
+          {{ problem.text | safe }}
+        </p>
+      </a>
+    </li>
+    {% endfor %}
+  </ol>
+  {% endif %}
+
+{% endblock %}
