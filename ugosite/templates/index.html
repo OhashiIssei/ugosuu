@@ -8,21 +8,21 @@
 {% block content %}
   <h2>Ugosuuにようこそ</h2>
   <p>ようこそ、Ugosuuへ。このウェブサイトは<em>大橋いっせい</em>によって開発されています!</p>
-  <h3>現在の状況</h3>
+  {% comment %} <h3>現在の状況</h3>
   <p>このサイトは次のような記録を持っています：</p>
   <ul>
-    <li><strong>カテゴリ:</strong> {{ num_categorys }}</li>
+    <li><strong>プリント:</strong> {{ num_prints }}</li>
     <li><strong>記事:</strong> {{ num_articles }}</li>
-    <li><strong>問題(入試問題):</strong> {{ num_problems }} ({{ num_problems_of_univ }})</li>
+    <li><strong>問題:</strong> {{ num_problems }}</li>
     <li><strong>動画:</strong> {{ num_videos }}</li>
     <li><strong>用語:</strong> {{ num_terms }}</li>
-  </ul>
+  </ul> {% endcomment %}
 
   <p>
     あなたがこのページを訪れたのは、{{ num_visits }}回目です
   </p>
 
-  <h2>新着記事</h2>
+  {% comment %} <h2>新着記事</h2>
   {% if article_list %}
   <ul>
     {% for article in article_list %}
@@ -33,19 +33,26 @@
   </ul>
   {% else %}
     <p>このサイトにはまだ記事がありません。</p>
-  {% endif %}
+  {% endif %} {% endcomment %}
 
-  <h2>カテゴリ</h2>
+  <h2>記事カテゴリ</h2>
   <ul>
     {% for category in category_list %}
-    {% include "model_link.html" with model=category %}
+      <li>{% include "model_link.html" with model=category %}</li>
     {% endfor %}
   </ul>
 
   <h2>プリントフォルダ</h2>
   <ul>
     {% for folder in folder_list %}
-      {% include "model_link.html" with model=folder %}
+    <li>{% include "model_link.html" with model=folder %}</li>
+    {% endfor %}
+  </ul>
+
+  <h2>動画プレイリスト</h2>
+  <ul>
+    {% for playlist in playlist_list %}
+    <li>{% include "model_link.html" with model=playlist %}</li>
     {% endfor %}
   </ul>
 {% endblock %}

@@ -45,7 +45,7 @@ class MyTeXFolder:
     def create_from_my_dir(self,parent_folder:Folder):
         print("%sを読み込む" % self.path)
         category_name = os.path.basename(self.path)
-        child_category = Folder.objects.create(
+        child_category,created = Folder.objects.get_or_create(
             name = category_name,
             parent_folder = parent_folder
         )

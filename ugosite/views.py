@@ -1,28 +1,18 @@
 # from types import NoneType
 from django.shortcuts import render
 
-import youtube.views ,thumbnail.views , video_search.views
-
 # Create your views here.
 
-# ここからがUgosuu
+from django.views import generic
 
 from ugosite.models import Category, Article, Term,Problem
 from youtube.models import Video
 from printviewer.models import Folder,Print
-from django.contrib.auth.models import User #Blog author or author
-from django.views import generic
-
 from .models import Subject,Chapter,Section,Subsection
 
-import os 
-
-
-from googletrans import Translator
-tr = Translator()
-tr.raise_Exception = True
-
-import urllib.parse as parse
+# from googletrans import Translator
+# tr = Translator()
+# tr.raise_Exception = True
 
 def index(request):
     """View function for home page of site."""
@@ -31,16 +21,16 @@ def index(request):
     request.session['num_visits'] = num_visits + 1
 
     context = {
-        'num_categorys' : Category.objects.all().count(),
         'num_articles': Article.objects.all().count(),
         'num_problems' : Problem.objects.all().count(),
-        'num_problems_of_univ' : Problem.objects.filter(source__isnull = False).count(),
+        'num_prints' : Print.objects.all().count(),
         'num_terms': Term.objects.all().count(),
         'num_visits': num_visits,
         'num_videos' : Video.objects.all().count(),
         'article_list' : Article.objects.all()[:3],
         'category_list' : Category.objects.all(),
         'folder_list' : Folder.objects.filter(parent_folder__isnull = True),
+        'playlist_list' : Playlist.objects.all()[:3],
     }
 
     # Render the HTML template index.html with the data in the context variable
@@ -61,8 +51,6 @@ class TermDetailView(generic.DetailView):
 
 class TermListView(generic.ListView):
     def get_context_data(self, **kwargs):
-
-
         context = super(TermListView,self).get_context_data(**kwargs)
         terms = context["term_list"]
         
@@ -73,17 +61,12 @@ class TermListView(generic.ListView):
 
 class CategoryDetailView(generic.DetailView):
     model = Category
-    def get_context_data(self, **kwargs):
-        context = super(CategoryDetailView,self).get_context_data(**kwargs)
-        context["categorys"] = [context["category"]]
-        return context
 
 class CategoryListView(generic.ListView):
     model = Category
     def get_context_data(self, **kwargs):
         context = super(CategoryListView,self).get_context_data(**kwargs)
-        context["category_list"] = Category.objects.filter(parent__isnull = True)
-        context["article_list"] = Article.objects.all()
+        context["category_list"] = Category.objects.all()
         return context
 
 
@@ -126,22 +109,22 @@ from youtube.models import VideoId,PlaylistId,ChannelSectionId,ChannelId
 from youtube.models import VideoGenre,VideoType,University,Source
 
 def reflesh_Models():
-    Category.objects.all().delete()
+    # Category.objects.all().delete()
     
-    Subject.objects.all().delete()
-    Chapter.objects.all().delete()
-    Section.objects.all().delete()
-    Subsection.objects.all().delete()
-    Article.objects.all().delete()
+    # Subject.objects.all().delete()
+    # Chapter.objects.all().delete()
+    # Section.objects.all().delete()
+    # Subsection.objects.all().delete()
+    # Article.objects.all().delete()
     
     
-    Folder.objects.all().delete()
-    Print.objects.all().delete()
-    Problem.objects.all().delete()
+    # Folder.objects.all().delete()
+    # Print.objects.all().delete()
+    # Problem.objects.all().delete()
     
     create_categories_form_four_step()
-    create_from_my_texfiles()
-    create_form_kakomon_files()
+    # create_from_my_texfiles()
+    # create_form_kakomon_files()
     
     # Download_Id().channelSections()
     # Download_Id().playlists()

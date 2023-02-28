@@ -37,24 +37,28 @@ urlpatterns += [
     path('prints/', printviewer.PrintListView.as_view(), name='prints'),
 ]
 
-import video_search,youtube
+
+
+from video_search import views as video_search
 
 urlpatterns += [
     # path('randomvideo/', youtube.views.VideoListView.as_view(), name='random_video'),
-    path('video_search/<int:pk>', video_search.views.VideoSearchView.as_view(), name='video_search'),
+    path('video_search/<int:pk>', video_search.VideoSearchView.as_view(), name='video_search'),
+]
+
+from youtube import views as youtube
+
+urlpatterns += [
+    path('video/<int:pk>', youtube.VideoDetailView.as_view(), name='video-detail'),
+    path('video_type/<int:pk>', youtube.VideoTypeDetailView.as_view(), name='video_type-detail'),
+    path('video_genre/<int:pk>', youtube.VideoGenreDetailView.as_view(), name='video_genre-detail'),
+    path('playlist/<int:pk>', youtube.PlaylistDetailView.as_view(), name='playlist-detail'),
+    path('channelSection/<int:pk>', youtube.ChannelSectionDetailView.as_view(), name='channelSection-detail'),
 ]
 
 urlpatterns += [
-    path('video/<int:pk>', youtube.views.VideoDetailView.as_view(), name='video-detail'),
-    path('video_type/<int:pk>', youtube.views.VideoTypeDetailView.as_view(), name='video_type-detail'),
-    path('video_genre/<int:pk>', youtube.views.VideoGenreDetailView.as_view(), name='video_genre-detail'),
-    path('playlist/<int:pk>', youtube.views.PlaylistDetailView.as_view(), name='playlist-detail'),
-    path('channelSection/<int:pk>', youtube.views.ChannelSectionDetailView.as_view(), name='channelSection-detail'),
-]
-
-urlpatterns += [
-    path('university-detail/<int:pk>', youtube.views.UniversityDetailView.as_view(), name='university-detail'),
-    path('universitys/', youtube.views.UniversityListView.as_view(), name='universitys'),
+    path('university-detail/<int:pk>', youtube.UniversityDetailView.as_view(), name='university-detail'),
+    path('universitys/', youtube.UniversityListView.as_view(), name='universitys'),
 ]
 
 

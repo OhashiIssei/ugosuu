@@ -1,0 +1,30 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+  <title> プリントフォルダ</title>
+{% endblock %}
+
+{% block folders %}
+  <h4>プリントフォルダ</h4>
+
+  <ul>
+    {% for folder in folder_list %}
+      {% if not folder.parent_folder %}
+      <li class="folder linkdiv" itemid="{{ folder.id }}">
+          <a href="#">
+            {{ folder }}
+          </a>
+          {% include "printviewer/folders.html" with model=folder %}
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+{% endblock %}
+
+{% block content %}
+  <div id="file-detail"></div>
+{% endblock %}
+
+{% block scripts %}
+  {% include "printviewer/folder_system.html" %}
+{% endblock %}
