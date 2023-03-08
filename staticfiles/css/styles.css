@@ -1,23 +1,5 @@
 @import url(https://fonts.googleapis.com/css2?family=DotGothic16&display=swap);
 
-/* @font-face{
-  font-family: 'rubikitalic';
-  src: url('../webfontkit/rubik-italic-webfont.woff2') format('woff2'),
-       url('../webfontkit/rubik-italic-webfont.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-
-}
-
-@font-face{
-  font-family: 'rubikregular';
-  src: url('../webfontkit/rubik-regular-webfont.woff2') format('woff2'),
-       url('../webfontkit/rubik-regular-webfont.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-
-} */
-
 /* || 基本要素デザイン */
 
 html{
@@ -105,16 +87,6 @@ header{
   display: block;
 }
 
-.main-nav ul{
-  display: inline-block;
-  height:100%;
-}
-
-.main-nav ul li{
-  list-style: none;
-  display: inline-block;
-}
-
 /* ||サブナビゲーション */
 
 .subnav{
@@ -139,7 +111,7 @@ footer ul{
 
 .related{
   border: 1px solid #5e5e5e71;
-    padding: 10px 10px 10px 10px;
+  padding: 10px 10px 10px 10px;
 }
 
 .related>ul{
@@ -173,11 +145,6 @@ footer ul{
 .search-method>*{
   margin: 10px 10px 10px 10px;
 }
-
-/* .listNav ul{
-  padding-left: 0;
-  margin-left: 0;
-} */
 
 /* linkリスト */
 .linkdiv:nth-child(even){
@@ -394,43 +361,6 @@ svg.icon path{
 
 
 
-
-@media screen and (min-width:550px){
-
-  
-  }
-  
-@media screen and (min-width:860px){
-  h1{
-    font-size: 3em;
-    transition: 0.5m;
-  }
-
-  /* header{
-    width:100%;
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    justify-content: left;
-    align-items: center;
-  } */
-
-  main{
-    display: grid;
-  }
-
-  .related{
-    border-right: none;
-    /* border-left: 1px solid #5e5e5e71; */
-    padding-left: 25px;
-    height:100%;
-    margin-left: 25px;
-    align-self: start;/* デフォルトのstrechを上書き */
-    /* position:sticky; */
-    top:0px;
-  }
-
-}
-
 /* || 両サイドレイアウト */
 
 aside{
@@ -443,6 +373,7 @@ aside{
 }
 
 @media screen and (min-width: 860px){
+  
   body{
     display: grid;
     grid-template-columns: 40% auto 0%;
@@ -469,6 +400,34 @@ aside{
       "folders"
       /* "border"
       "files" */
+  }
+
+  h1{
+    font-size: 3em;
+    transition: 0.5m;
+  }
+
+  /* header{
+    width:100%;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    justify-content: left;
+    align-items: center;
+  } */
+/* 
+  main{
+    display: grid;
+  } */
+
+  .related{
+    border-right: none;
+    /* border-left: 1px solid #5e5e5e71; */
+    padding-left: 25px;
+    height:100%;
+    margin-left: 25px;
+    align-self: start;/* デフォルトのstrechを上書き */
+    /* position:sticky; */
+    top:0px;
   }
 
   .border{

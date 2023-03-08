@@ -98,20 +98,33 @@ WSGI_APPLICATION = 'ugosuu.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'HOST': 'db',
-        'PORT': 5432,
-    }
-}
+# DATABASES = {
 
+# }
+
+DATABASES = {
+    'default': { # sqlite3
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    } 
+#        'default': { # postgres
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'postgres',
+#         'USER': 'postgres',
+#         'HOST': 'db',
+#         'PORT': 5432,
+# #     } 
+#     'default': { # mysql
+#         'ENGINE': 'django.db.backends.mysql', 
+#         'NAME': 'ugosites', # プロジェクトで使用するデータベース名
+#         'USER': 'root', # docker-compose.ymlで設定したMySQLのユーザー名
+#         'PASSWORD': 'secret', # docker-compose.yml設定したMySQLのパスワード
+#         'HOST':'ugosite-data',# docker-compose.yml設定したMySQLのhost名
+#         'OPTIONS': {
+#             'charset': 'utf8mb4', # 日本語に対応させる
+#         },
+#     }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -175,6 +188,12 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # The URL to use when referring to static files (where they will be served from)
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = (
+    [
+        os.path.join(BASE_DIR, "static"),
+    ]
+)
 
 # Simplified static file serving.
 # https://pypi.org/project/whitenoise/

@@ -1,0 +1,40 @@
+<div id="box" class="jxgbox" style="width:400px; height:400px;"></div>
+{% load static %}
+<script type="text/javascript" src="{% static 'js/angle_extention.js' %}"></script>
+<script type="text/javascript">
+ var board = JXG.JSXGraph.initBoard('box', 
+    {
+        boundingbox: [-1.2, 1.2, 1.2, -1.2],
+        axis:false,
+        grid:false,
+        showcopyright: false,
+        showFullscreen: true,
+        fullscreen:{
+            symbol: '\u22c7',
+            scale: 0.95
+        },
+        showClearTraces:true,
+    }
+);
+
+var fill_rect = board.create('polygon',[[100,100],[100,-100],[-100,-100],[-100,100]], {fixed:true,fillOpacity:1,fillcolor:'hsl(0, 0%, 15%)'});
+var circle = board.create('circle',[[0,0],[0,1]], {strokeColor:'#00ff00',strokeWidth:2,strokecolor:'white'});
+var pointA = board.create('glider', [1,-2,circle], {name:"",id:'B', strokecolor:'white',fillcolor:'white',
+    attractors: [circle], attractorDistance:0.01, snatchDistance: 0.5,
+});
+var pointB = board.create('glider', [-1,-2,circle], {name:"",id:'C', strokecolor:'white',fillcolor:'white',
+    attractors: [circle], attractorDistance:0.01, snatchDistance: 0.5,
+});
+var pointP = board.create('glider', [0,1,circle], {name:'drag me!',id:"D", strokecolor:'orange',fillcolor:'orange',
+    attractors: [circle], attractorDistance:0.01, snatchDistance: 0.5,
+}).setAttribute("labelcolor:orange");
+
+
+var lineAP = board.create('line',["B","D"],  {straightFirst:true, straightLast:true, strokeWidth:2, strokecolor:'white'});
+var lineBP = board.create('line',["C","D"],  {straightFirst:true, straightLast:true, strokeWidth:2, strokecolor:'white'});
+var angleAPB = circumferenceAngle(pointA,pointP,pointB)
+
+var pointA0 =  board.create('mirrorpoint', [pointA ,pointP],{visible:false})
+var pointB0 =  board.create('mirrorpoint', [pointB ,pointP],{visible:false})
+var angleA0PB0 = circumferenceAngle(pointA0,pointP,pointB0)
+</script>

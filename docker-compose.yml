@@ -1,17 +1,32 @@
-version: '3'
+version: "3.7"
 
 services:
-  db:
-    image: postgres
+  ugosite-data:
+    image: mysql:latest
+    volumes: 
+      - ugosite-bd:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/my.cnf
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
-      - POSTGRES_PASSWORD=1
-      - POSTGRES_HOST_AUTH_METHOD=trust
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: ugosites
+      TZ: 'Asia/Tokyo'
+
   web:
-    build: .
-    command: python3 manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/code
+    image: ugosite
     ports:
-      - "8000:8000"
+      - "8000:8002"
+    working_dir: /ugosite
+    volumes:
+      - ./:/ugosite
+    environment:
+      MYSQL_HOST: ugosite-data
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+      MYSQL_DB: ugosites
     depends_on:
-      - db
+      - ugosite-data
+
+volumes:
+  ugosite-bd:
+    external: true

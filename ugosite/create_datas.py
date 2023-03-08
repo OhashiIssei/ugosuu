@@ -22,7 +22,7 @@ from .models import Subject,Chapter,Section,Subsection
 import util.text_transform as text_transform
 from ugosite.models import Problem
 
-MEDIA_LOCAL_PATH = "/Users/greenman/local_django_projects/ugosuu/media_local"
+MEDIA_LOCAL_PATH = "./media_local"
 
 class TitleOfFourStep:
     def __init__(self,text:str):

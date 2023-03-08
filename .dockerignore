@@ -27,8 +27,12 @@ LICENSE
 README.md
 
 # 容量を食うだけの予備データ
-media_local/
-math_data/
+media_local/all_thumbnail
+media_local/background_images
+media_local/icons
+media_local/Notes
+media_local/smart_background
+**/*.sqlite*
 notes/
 thumbnail/thumbnails/
 youtube/thumbnails/
