@@ -16,12 +16,10 @@ from .models import Folder,Print
 
 import util.text_transform as text_transform
 from ugosite.models import Problem
-
-MEDIA_LOCAL_PATH = "/Users/greenman/local_django_projects/ugosuu/media_local"
             
 FROM_MYTEX_DESCRIPTION_TO_JAX = [["\r",""]]
 FROM_MYTEX_DESCRIPTION_TO_JAX += [["<","&lt;"],[">","&gt;"],["\\bunsuu","\\displaystyle\\frac"],["\\dlim","\\displaystyle\\lim"],["\\dsum","\\displaystyle\\sum"]]
-FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\vv","\\overrightarrow"],["\\bekutoru","\\overrightarrow"],["\\doo","^{\\circ}"],["\\C","^{\\text{C}}"]]
+FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\vv","\\overrightarrow"],["\\bekutoru","\\overrightarrow"],["\\doo","^{\\circ}"],["\\C","^{\\text{C}}"],["\\heikou","/\\!/"]]
 FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\barr","\\left\\{\\begin{array}{l}"],["\\earr","\\end{array}\\right."]]
 FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\PP","^{\\text{P}}"],["\\QQ","^{\\text{Q}}"],["\\RR","^{\\text{R}}"]]
 FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\NEN","\\class{arrow-pp}{}"],["\\NEE","\\class{arrow-pm}{}"],["\\SES","\\class{arrow-mm}{}"],["\\SEE","\\class{arrow-mp}{}"]]
@@ -35,8 +33,9 @@ FROM_MYTEX_DESCRIPTION_TO_JAX += [["bquu","bqu"],["equu","equ"],["bQ","bqu"],["e
 for j in range(10):
     FROM_MYTEX_DESCRIPTION_TO_JAX += [["\\MARU{%s}" % str(j),str("&#931%s;" % str(j+1))]]
     
+from ugosite.create_datas import MEDIA_LOCAL_PATH
 
-KOUSIKANKEI_PATH = '/Users/greenman/Library/Mobile Documents/com~apple~CloudDocs/講師関係'
+KOUSIKANKEI_PATH = f'{MEDIA_LOCAL_PATH}/講師関係'
 
 class MyTeXFolder:
     def __init__(self,path:str):
@@ -131,9 +130,9 @@ class TextOfMyTeX:
         return result
     
     def test_translate_to_jax():
-        test_input = "\\sq3+\\sqrt3+\\sq{3}+\\sqrt{3}"
+        test_input = "\\sq3+\\sqrt3+\\sq{3}+\\sqrt{3} l \\heikou m"
         test_output = TextOfMyTeX(test_input).translate_to_jax()
-        correct_output = "\\sqrt3+\\sqrt3+\\sqrt{3}+\\sqrt{3}"
+        correct_output = "\\sqrt3+\\sqrt3+\\sqrt{3}+\\sqrt{3} l /\\!/ m"
         if correct_output == test_output:
             print("text_in_jax:OK")
             return

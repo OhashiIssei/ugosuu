@@ -103,58 +103,23 @@ from ugosite.create_datas import create_categories_form_four_step
 from printviewer.create_datas import create_from_my_texfiles
 from kakomon.create_datas import create_form_kakomon_files
 
-from youtube.create_datas import Download_Id,Download_Response,Create_Models,Add_Relation
+from youtube.create_datas import download_Id_and_res,create_Models,add_Relation
 from youtube.create_datas import ChannelSectionResponse,PlaylistResponse,PlaylistItemResponse,VideoResponse
-from youtube.models import VideoId,PlaylistId,ChannelSectionId,ChannelId
+from youtube.id import VideoId,PlaylistItemId,PlaylistId,ChannelSectionId,ChannelId
 from youtube.models import VideoGenre,VideoType,University,Source
 
 def reflesh_Models():
-    # Category.objects.all().delete()
-    
-    # Subject.objects.all().delete()
-    # Chapter.objects.all().delete()
-    # Section.objects.all().delete()
-    # Subsection.objects.all().delete()
-    # Article.objects.all().delete()
-    
-    
-    # Folder.objects.all().delete()
-    # Print.objects.all().delete()
-    # Problem.objects.all().delete()
-    
-    create_categories_form_four_step()
+    # create_categories_form_four_step()
     # create_from_my_texfiles()
     # create_form_kakomon_files()
     
-    # Download_Id().channelSections()
-    # Download_Id().playlists()
-    # Download_Id().videos()
+    # download_Id_and_res()
+    # create_Models()
+    add_Relation()
 
-    # Download_Response().videos()
-    # Download_Response().playlists()
-    # Download_Response().playlistItems()
-    # Download_Response().channelSections()
+    print("reflesh_Models実行完了")
 
-    # VideoGenre.objects.all().delete()
-    # VideoType.objects.all().delete()
-
-    # University.objects.all().delete()
-    # Source.objects.all().delete()
-    # Term.objects.all().delete()
-    
-    # Create_Models().videos()
-    # Create_Models().playlists()
-    # Create_Models().channelSections()
-    # Create_Models().playlistItems()
-    # Create_Models().channelSections()
-    # Add_Relation().videos()
-    # Add_Relation().videos_to_terms()
-
-
-# reflesh_Models()
-
-# for video_genre in VideoGenre.objects.all():
-#     print(video_genre.category())
+reflesh_Models()
 
 
 

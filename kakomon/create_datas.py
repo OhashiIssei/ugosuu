@@ -8,22 +8,23 @@ import os
 from ugosite.models import Print,Problem
 from printviewer.models import Folder,Print
 
-KAKOMON_PATH = '/Users/greenman/Library/Mobile Documents/com~apple~CloudDocs/旧帝大過去問'
+from ugosite.create_datas import MEDIA_LOCAL_PATH
+KAKOMON_PATH = f'{MEDIA_LOCAL_PATH}/旧帝大過去問'
 
 class TeXYearFolderOfKakomon:
     def __init__(self,path:str):
         self.path = path
         
     def create_print(self,parent_folder:Folder):
-        kakomon_print = Print.objects.create(
+        kakomon_print,created = Print.objects.get_or_create(
             name = "%s %s" % (parent_folder.name,os.path.basename(self.path)),
             parent_folder = parent_folder
         )
+        if created:print(f"Folder「{parent_folder}」内にPrint「{kakomon_print}」をcreateしました．")
         for file in sorted(os.listdir(self.path)):
             if not file.endswith('.tex'):continue
             problem = TeXFileOfKakomon("%s/%s" % (self.path,file)).make_from_kakomon_texfile(kakomon_print)
             problem.prints.add(kakomon_print)
-        print("new Print: %s (parent: %s)" % (kakomon_print,kakomon_print.parent_folder))
         
 class TeXUnivFolderOfKakomon:
     def __init__(self,path:str):
@@ -39,11 +40,11 @@ class TeXUnivFolderOfKakomon:
         return result
     
     def create_univ_folder(self,folder:Folder):
-        univ_folder = Folder.objects.create(
+        univ_folder,created = Folder.objects.get_or_create(
             name = self.univ_name(),
             parent_folder = folder,
         )
-        print("new Folder: %s (parent: %s)" % (univ_folder,univ_folder.parent_folder))
+        if created:print(f"Folder「{folder}」Folder「{univ_folder}」をcreateしました．")
         return univ_folder
         
     def create_prints(self,folder:Folder):
@@ -84,24 +85,25 @@ class TeXFileOfKakomon:
         text = text.replace("\r","")
         text = text_transform.itemize_to_ol(text)
         text = text_transform.item_to_li(text)
-        print(text)
+        # print(text)
         text = re.sub("\\\\hspace{\dzw}","",text)
         text = text.replace("\\hspace{1zw}","~").replace('\\ding{"AC}',"&#9312;").replace('\\ding{"AD}',"&#9313;").replace('\\ding{"AE}',"&#9314;")
         text = re.sub("\$([\s\S]+?)\$"," $\\1$ ",text)
         text = text.replace("$ ，","$，")
         text = text.replace("\\\\","<br>")
         name = "%s %s系 第%s問" % (atricleName,division,num)
-        problem = Problem.objects.create(
-            name = "%s %s系 第%s問" % (atricleName,division,num),
+        problem,created = Problem.objects.get_or_create(
+            name = name,
             source = name,
             text = text
         )
-        print("new Problem: %s" % problem)
+        if created: print(f"Problem「{problem}」をcreateしました．")
         return problem
 
 def create_form_kakomon_files():
         
-    parent_folder = Folder.objects.create(name = "大学別62年過去問題集")
+    parent_folder,created = Folder.objects.get_or_create(name = "大学別62年過去問題集")
+    if created: print(f"Folder「{parent_folder}」をcreateしました．")
     
     for univ in sorted(os.listdir(KAKOMON_PATH)):
         if univ.startswith('.'): continue

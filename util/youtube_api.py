@@ -7,8 +7,8 @@ import httplib2,os
 from google_auth_oauthlib.flow import InstalledAppFlow
 from apiclient.discovery import build
 
-# YOUTUBE_API_Key = 'AIzaSyD-ohN5V0dlXYHjP7lSrUgKcCgXDkjpR14'
-YOUTUBE_API_KEY = 'AIzaSyCSZDXmnKDlNZMy8-P7EZOK44XmHWr9Y_w'
+YOUTUBE_API_KEY = 'AIzaSyD-ohN5V0dlXYHjP7lSrUgKcCgXDkjpR14'
+# YOUTUBE_API_KEY = 'AIzaSyCSZDXmnKDlNZMy8-P7EZOK44XmHWr9Y_w'
 
 
 CLIENT_SECRETS_FILE = 'client_secret.json'

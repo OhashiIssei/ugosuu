@@ -28,7 +28,7 @@ python-dateutil==2.8.2
 virtualenv==20.16.5
 whitenoise==6.2.0
 
-# mysqlclient
+mysqlclient
 
 # namedivider
 # pyzbar

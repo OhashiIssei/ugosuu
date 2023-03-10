@@ -6,55 +6,8 @@ import sys,re
 
 
 from django_mysql.models import ListCharField
+from youtube.id import VideoId,PlaylistId,ChannelSectionId,ChannelId
 
-class ChannelId(models.Model):
-    raw_text = models.CharField(max_length=50,unique=True)
-
-    def __str__(self):
-        return self.raw_text
-    
-
-class ChannelSectionId(models.Model):
-    raw_text = models.CharField(max_length=50,unique=True)
-
-    def __str__(self):
-        return self.raw_text
-    
-    def is_saved(self):
-        if ChannelSectionId.objects.filter(raw_text = self.raw_text):return True
-        return False
-    
-    def add_to_local(self):
-        if self.is_saved():return self
-        self.save()
-
-class PlaylistId(models.Model):
-    raw_text = models.CharField(max_length=50,unique=True)
-
-    def __str__(self):
-        return self.raw_text
-    
-    def is_saved(self):
-        if PlaylistId.objects.filter(raw_text = self.raw_text):return True
-        return False
-    
-    def add_to_local(self):
-        if self.is_saved():return self
-        self.save()
-
-class VideoId(models.Model):
-    raw_text = models.CharField(max_length=50,unique=True)
-    
-    def __str__(self):
-        return self.raw_text
-    
-    def is_saved(self):
-        if VideoId.objects.filter(raw_text = self.raw_text):return True
-        return False
-    
-    def add_to_local(self):
-        if self.is_saved():return self
-        self.save()
 
 class University(models.Model):
     name = models.CharField(default = None,max_length=200)

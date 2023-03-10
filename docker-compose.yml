@@ -4,7 +4,7 @@ services:
   ugosite-data:
     image: mysql:latest
     volumes: 
-      - ugosite-bd:/var/lib/mysql
+      - ugosite-db:/var/lib/mysql
       - ./mysql/my.cnf:/etc/my.cnf
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
@@ -28,5 +28,5 @@ services:
       - ugosite-data
 
 volumes:
-  ugosite-bd:
+  ugosite-db:
     external: true

@@ -3,7 +3,7 @@ from django.db import models
 from ugosite.models import Term,Category
 
 from .models import ChannelSection,Playlist,PlaylistItem,Video,MY_CHANNEL_ID
-from .models import ChannelId,ChannelSectionId,PlaylistId,VideoId
+from .id import ChannelId,ChannelSectionId,PlaylistId,PlaylistItemId,VideoId
 from .models import VideoType,VideoGenre,VIDEO_GENRE_TO_CAETEGORY,VIDEO_TYPE_CHOICES
 from .models import University,Source
 
@@ -18,273 +18,165 @@ import sys,re
 from util.youtube_api import youtube_with_key
 # from  util.youtube_api import youtube_with_auth
 
-# my_channel_id =  ChannelId.objects.create(raw_text = MY_CHANNEL_ID)
-my_channel_id =  ChannelId(raw_text = MY_CHANNEL_ID)
+# my_channeId =  ChannelId.objects.create(raw_text = MY_CHANNEL_ID)
 
-class Download_Id:
-    def channelSections(self):
-        Download_Id().channelSectionIds_in_channelId(my_channel_id)
+def download_Id_and_res():
+    ChannelId.objects.all().delete()
+    ChannelSectionId.objects.all().delete()
+    PlaylistId.objects.all().delete()
+    PlaylistItemId.objects.all().delete()
+    VideoId.objects.all().delete()
+    
+    ChannelSectionResponse.objects.all().delete()
+    PlaylistResponse.objects.all().delete()
+    PlaylistItemResponse.objects.all().delete()
+    VideoResponse.objects.all().delete()
 
-    def playlists(self):
-        Download_Id().playlistIds_in_channelId(my_channel_id)
-        for channelSectionId in ChannelSectionId.objects.all():
-            Download_Id().playlistIds_in_channelSectionId(channelSectionId)
+    my_channeId,created = ChannelId.objects.get_or_create(raw_text = MY_CHANNEL_ID)
+    my_channeId.download_channelSectionId_and_res()
+
+    my_channeId.download_playlistId_and_res()
+    for channelSectionId in ChannelSectionId.objects.all():
+        channelSectionId.download_playlistId_and_res()
             
-    def videos(self):
-        uploads_playlistId = self.uploads_playlistId()
-        Download_Id().videoIds_in_playlist(uploads_playlistId)
-        for playlistId in PlaylistId.objects.all():
-            Download_Id().videoIds_in_playlist(playlistId)
+    for playlistId in PlaylistId.objects.all():
+        playlistId.download_playlistItemId_and_res_and_videoId()
 
+    my_channeId.download_playlistId_of_uploads().download_playlistItemId_and_res_and_videoId()
+    # for playlistItemId in PlaylistItemId.objects.all():
+    #     playlistItemId.download_videoIds_and_res()
 
-    def channelSectionIds_in_channelId(self,channelId:ChannelId):#,pagetoken)
-        print(f"ChannelId「{channelId}」からChannelSectionIdをすべて取得します")
-        res = youtube_with_key.channelSections().list(
-            channelId = channelId.raw_text,
-            part='snippet,contentDetails',
-        ).execute()
-        ChannelSectionResponses(res["items"]).save_each_channelSectionId()
+    for videoId in VideoId.objects.all():
+        videoId.download_videoResponse()
 
+# def download_Response():
+#     def channelSections():
+#         ChannelSectionResponse.objects.all().delete()
+#         for channelSectionId in ChannelSectionId.objects.all():
+#             channelSectionId.download_channelSectionResponse()
 
-
-
-
-    def playlistIds_in_channelSectionId(self,channelSectionId:ChannelSectionId):
-        print(f"ChannelSectionId「{channelSectionId}」からPlaylistIdをすべて取得します")
-        res = youtube_with_key.channelSections().list(
-            id = channelSectionId.raw_text,
-            part='snippet,contentDetails',
-        ).execute() 
-        for law_playlistId in res["items"][0]["contentDetails"]["playlists"]:
-            PlaylistId(raw_text = law_playlistId).add_to_local()
-
-    def playlistIds_in_channelId(self,channelId:ChannelId):
-        print(f"ChannelId「{channelId}」からPlaylistIdをすべて取得します")
-        pageToken = ""
-        while True:
-            res = youtube_with_key.playlists().list(
-                channelId = channelId.raw_text,
-                part='id',
-                maxResults = 100,
-                pageToken = pageToken
-            ).execute() 
-
-            PlaylistResponses(res["items"]).save_each_playlistId()
-            try:
-                pageToken = res["nextPageToken"]
-                continue
-            except:
-                break
-
-    def videoIds_in_playlist(self,playlistId:PlaylistId):
-        print(f"PlaylistId「{playlistId}」内のVideoIdをすべて取得します")
-        pageToken = ""
-        while True:
-            res = youtube_with_key.playlistItems().list(
-                playlistId = playlistId.raw_text,
-                part='snippet',
-                maxResults = 100,
-                pageToken = pageToken
-            ).execute()
-            PlaylistItemResponses(res["items"]).save_each_videoId()
-            try:
-                pageToken = res["nextPageToken"]
-                continue
-            except:
-                break
-
-    def uploads_playlistId(self):
-        print("Cannel「%s」のuploadsのplaylistIdを取得します" % my_channel_id)
-        res = youtube_with_key.channels().list(
-            id = my_channel_id,
-            part="contentDetails"
-        ).execute()
-        channel_data = res["items"][0]
-        return PlaylistId(raw_text = channel_data["contentDetails"]["relatedPlaylists"]["uploads"])
+#     def playlists():
+#         PlaylistResponse.objects.all().delete()
+#         for playlistId in PlaylistId.objects.all():
+#             playlistId.download_playlistResponse()
     
+#     def playlistItems():
+#         PlaylistItemResponse.objects.all().delete()
+#         for playlistItemId in PlaylistItemId.objects.all():
+#             playlistItemId.download_playlistItemResponse()
 
+#     def videos():
+#         VideoResponse.objects.all().delete()
+#         for videoId in VideoId.objects.all():
+#             videoId.download_videoResponse()
 
+#     # channelSections()
+#     playlists()
+#     playlistItems()
+#     videos()
 
-
-
-class Download_Response:
-    def channelSections(self):
-        ChannelSectionResponse.objects.all().delete()
-        for channelSectionId in ChannelSectionId.objects.all():
-            Download_Response().channelSection_from_channelSectionId(channelSectionId)
-
-    def playlists(self):
-        PlaylistResponse.objects.all().delete()
-        for playlistId in PlaylistId.objects.all():
-            Download_Response().playlist_from_playlistId(playlistId)
-        
-    
-    def playlistItems(self):
-        PlaylistItemResponse.objects.all().delete()
-        for playlistId in PlaylistId.objects.all():
-            Download_Response().playlistItems_from_playlistId(playlistId)
-
-    def videos(self):
-        VideoResponse.objects.all().delete()
-        for videoId in VideoId.objects.all():
-            Download_Response().video_from_videoId(videoId)
-        
-
-
-    def channelSection_from_channelSectionId(self,channelSectionId:ChannelSectionId):#,pagetoken)
-        print("ChannelSectionId「%s」からChannelSectionResponseを取得します" % channelSectionId)
-        res = youtube_with_key.channelSections().list(
-            id = channelSectionId.raw_text,
-            part='snippet,contentDetails',
-        ).execute()
-        ChannelSectionResponse.objects.create(json_data = res["items"][0])
-
-    def playlist_from_playlistId(self,playlistId:PlaylistId):
-        print("PlaylistId「%s」からplaylistResponseを取得します" % playlistId)
-        pageToken = ""
-        res = youtube_with_key.playlists().list(
-            id = playlistId.raw_text,
-            part='snippet',
-            maxResults = 100,
-            pageToken = pageToken
-        ).execute()
-        PlaylistResponse.objects.create(json_data = res["items"][0])
-
-    def playlistItems_from_playlistId(self,playlistId:PlaylistId):
-        print("PlaylistId「%s」からplaylistItemResponseをすべて取得します" % playlistId)
-        pageToken = ""
-        while True:
-            res = youtube_with_key.playlistItems().list(
-                playlistId = playlistId.raw_text,
-                part='snippet',
-                maxResults = 100,
-                pageToken = pageToken
-            ).execute()
-            PlaylistItemResponses(res["items"]).save_each_data()
-            try:
-                pageToken = res["nextPageToken"]
-                continue
-            except:
-                break
-
-    def video_from_videoId(self,videoId:VideoId):
-        print("VideoId「%s」からVideoResponseを取得します" % videoId)
-        res = youtube_with_key.videos().list(
-            id = videoId.raw_text,
-            part='snippet',
-        ).execute()
-        VideoResponse.objects.create(json_data = res["items"][0])
-        # print("Video「%s」のデータを更新しました" % self)
-    
-
-
-class Create_Models:
-    def videos(self):
+def create_Models():
+    def videos():
         Video.objects.all().delete()
         for video_res in VideoResponse.objects.all():
             print("VideoResponse「%s」からVideoを作成します" % video_res)
             video_res.create_model()
 
-    def playlists(self):
+    def playlists():
         Playlist.objects.all().delete()
         for playlist_res in PlaylistResponse.objects.all():
             print("PlaylistResponse「%s」からPlaylistを作成します" % playlist_res)
             playlist_res.create_model()
 
-    def playlistItems(self):
+    def playlistItems():
         PlaylistItem.objects.all().delete()
         for playlistItem_res in PlaylistItemResponse.objects.all():
             print("PlaylistItemResponse「%s」からPlaylistItemを作成します" % playlistItem_res)
             playlistItem_res.create_model()
             
 
-    def channelSections(self):
+    def channelSections():
         ChannelSection.objects.all().delete()
         for channelSection_res in ChannelSectionResponse.objects.all():
             print("ChannelSectionResponse「%s」からChannelSectionを作成します" % channelSection_res)
             channelSection_res.create_model()
 
-    def videoTypes(self):
+    def videoTypes():
         VideoType.objects.all().delete()
         for type in VIDEO_TYPE_CHOICES:
             VideoType.objects.create(name = type[0])
 
-    def videoGenres(self):
+    def videoGenres():
         VideoGenre.objects.all().delete()
         genre_name_list = [playlist.genre_name() for playlist in PlaylistResponse.objects.all()]
         genre_name_list = list(set(genre_name_list))
         for name in genre_name_list:
             VideoGenre.objects.create(name = name)
 
-class Add_Relation:
-    def videos(self):
+    videos()
+    playlists()
+    playlistItems()
+    channelSections()
+    videoTypes()
+    videoGenres()
+
+def add_Relation():
+    def videos():
         for video in Video.objects.all():
-            if not video.main_playlist() :continue
-            video.video_type = video.main_playlist().video_type
-            video.video_genre = video.main_playlist().video_genre
+            main_playlist = video.main_playlist()
+            if not  main_playlist:continue
+            video.video_type = main_playlist.video_type
+            video.video_genre = main_playlist.video_genre
             video.save()
-            print(f"Video「{video}」に{video.video_type},{video.video_genre}を関係づけました")
+            print(f"Video「{video}」のVideoTypeは「{video.video_type}」,VideoGenreは「{video.video_genre}」と定めました")
 
-    def videos_to_terms(self):
-        def isRelate(video:Video,term:Term):
-            if term.name in video.title : return True
-            if term.name in video.problem :return True
-            if term.name in video.point :return True
-            return False
-
+    def videos_to_terms():
         for term in Term.objects.all():
-            for video in Video.objects.all():
-                if term in video.terms.all():continue
-                if isRelate(video,term):
+            query_sets = [
+                Video.objects.filter(title__icontains=term.name),
+                Video.objects.filter(problem__icontains=term.name),
+                Video.objects.filter(point__icontains=term.name)
+            ]
+            for query_set in query_sets:
+                for video in query_set:
                     print(f"Video「{video}」にTerm「{term}」を関係づけました")
                     video.terms.add(term)
-
+    
+    # videos()
+    videos_to_terms()
 
 class ChannelSectionResponses:
     def __init__(self,list:list[object]):
         self.list = list
 
-    def save_each_data(self):
-        for data in self.list:
-            if not data["snippet"]["type"] == "multipleplaylists" : continue
-            ChannelSectionResponse.objects.create(json_data = data)
+    # def save_each_data(self):
+    #     for data in self.list:
+    #         if not data["snippet"]["type"] == "multipleplaylists" : continue
+    #         ChannelSectionResponse.objects.create(json_data = data)
 
-    def save_each_channelSectionId(self):
+    def save_each_id_and_res(self):
         for data in self.list:
             if not data["snippet"]["type"] == "multipleplaylists" : continue
-            ChannelSectionId(raw_text = data["id"]).add_to_local()
+            ChannelSectionId.objects.get_or_create(raw_text = data["id"])
+            ChannelSectionResponse.objects.get_or_create(json_data = data)
 
 class PlaylistResponses:
     def __init__(self,list:list[object]):
         self.list = list
 
-    def save_each_data(self):
+    def save_each_id_and_res(self):
         for data in self.list:
-            PlaylistResponse.objects.create(json_data = data)
-
-    def save_each_playlistId(self):
-        for data in self.list:
-            PlaylistId(raw_text = data["id"]).add_to_local()
-
-class PlaylistItemResponses:
-    def __init__(self,list:list[object]):
-        self.list = list
-
-    def save_each_data(self):
-        for data in self.list:
-            PlaylistItemResponse.objects.create(json_data = data)
-
-    def save_each_videoId(self):
-        for data in self.list:
-            VideoId(raw_text = data["snippet"]['resourceId']["videoId"]).add_to_local()
+            PlaylistId.objects.get_or_create(raw_text = data["id"])
+            PlaylistResponse.objects.get_or_create(json_data = data) 
 
 class VideoResponses:
     def __init__(self,list:list[object]):
         self.list = list
 
-    def save_each_data(self):
+    def save_each_id_and_res(self):
         for data in self.list:
-            VideoResponse.objects.create(json_data = data)
+            VideoId.objects.get_or_create(raw_text = data["id"])
+            VideoResponse.objects.get_or_create(json_data = data)
 
 
 
@@ -493,11 +385,10 @@ class VideoResponse(models.Model):
         return s[0]
 
     def university(self):
-        try:
-            return University.objects.get(name = self.university_name())
-        except:
-            return University.objects.create(name = self.university_name())
-        
+        university,created = University.objects.get_or_create(name = self.university_name())
+        if created: print(f"University「{university}」をcreateしました")
+        return university
+    
     def year(self):
         source_text = self.extract_item("ソース")
         y = re.findall("\d{4}|\d{2}",source_text)
@@ -528,20 +419,15 @@ class VideoResponse(models.Model):
         return result
 
     def source(self):
-        try:
-            return Source.objects.get(
+        source,created = Source.objects.get_or_create(
                 university = self.university(),
                 division = self.division(),
                 year = self.year(),
                 question_num = self.question_num()
             )
-        except:
-            return Source.objects.create(
-                university = self.university(),
-                division = self.division(),
-                year = self.year(),
-                question_num = self.question_num()
-            )
+        if created: print(f"Source「{source}」をcreateしました")
+        return source
+    
         
     ### Term に関するもの ###
 
@@ -561,9 +447,13 @@ class VideoResponse(models.Model):
 
     def tags_in_json_data(self):
         result = []
-        for tag in self.json_data["snippet"]["tags"]:
-            result.append(tag.replace(" ",""))
-        return result
+        try:
+            tags = self.json_data["snippet"]["tags"]
+            for tag in tags:
+                result.append(tag.replace(" ",""))
+            return result
+        except:
+            return result
     
     def tags_in_description(self):
         return re.findall("#(.)[\s\n$]",self.description())
@@ -590,10 +480,8 @@ class VideoResponse(models.Model):
     def terms(self):
         result = []
         for term_name in self.term_names():
-            try:
-                term = Term.objects.get(name = term_name)
-            except:
-                term = Term.objects.create(name = term_name)
+            term,created = Term.objects.get_or_create(name = term_name)
+            if created: print(f"Term「{term}」をcreateしました")
             result.append(term)
         return result
 
@@ -612,8 +500,8 @@ class VideoResponse(models.Model):
         if self.extract_item("ソース"):
             video.source = self.source()
             video.save()
-        if self.extract_item("キーワード"):
-            video.terms.add(*self.terms())
+        # if self.extract_item("キーワード"):
+        video.terms.add(*self.terms())
 
 
 

@@ -9,23 +9,43 @@ class TermAdmin(admin.ModelAdmin):
 admin.site.register(Term, TermAdmin)
 
 
-# class ArticleAdmin(admin.ModelAdmin):
-#     list_display = ('name', 'created_date', 'type')
-#     # inlines = [ProblemsInline]
+class ArticleAdmin(admin.ModelAdmin):
+    list_display = ('id','name')
 
-# admin.site.register(Article, ArticleAdmin)
+admin.site.register(Article, ArticleAdmin)
 
-# class CategoryAdmin(admin.ModelAdmin):
-#     list_display = ('name' ,'parent','type')
-#     # inlines = [ProblemsInline]
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('id','name')
 
-# admin.site.register(Category, CategoryAdmin)
+admin.site.register(Category, CategoryAdmin)
 
 class ProblemAdmin(admin.ModelAdmin):
     list_display = ('name' ,'text')
-    # inlines = [ProblemsInline]
 
 admin.site.register(Problem, ProblemAdmin)
+
+# class ProblemsInline(admin.TabularInline):
+#     model = Problem
+    
+
+
+from printviewer.models import Folder, Print
+
+class PrintAdmin(admin.ModelAdmin):
+    list_display = ('name' ,'parent_folder', 'description')
+    # inlines = [ProblemsInline]
+
+admin.site.register(Print, PrintAdmin)
+
+class PrintsInline(admin.TabularInline):
+    model = Print
+
+class FolderAdmin(admin.ModelAdmin):
+    list_display = ('name' ,'parent_folder', 'description')
+    # inlines = [PrintsInline]
+
+admin.site.register(Folder, FolderAdmin)
+
 
 
 
@@ -33,14 +53,12 @@ from youtube.models import Video,Playlist,PlaylistItem,ChannelSection
 
 class VideoAdmin(admin.ModelAdmin):
     list_display = ('title','source','table_list','problem','point')
-    # inlines = [ProblemsInline]
 
 admin.site.register(Video, VideoAdmin)
 
 
 class PlaylistAdmin(admin.ModelAdmin):
     list_display = ('title','playlistId','description')
-    # inlines = [ProblemsInline]
 
 admin.site.register(Playlist, PlaylistAdmin)
 
