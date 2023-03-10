@@ -100,10 +100,10 @@ WSGI_APPLICATION = 'ugosuu.wsgi.application'
 
 
 DATABASES = {
-#     'default': { # sqlite3
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     } 
+    'default': { # sqlite3
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    } 
 #        'default': { # postgres
 #         'ENGINE': 'django.db.backends.postgresql',
 #         'NAME': 'postgres',
@@ -111,16 +111,16 @@ DATABASES = {
 #         'HOST': 'db',
 #         'PORT': 5432,
 # #     } 
-    'default': { # mysql
-        'ENGINE': 'django.db.backends.mysql', 
-        'NAME': 'ugosites', # プロジェクトで使用するデータベース名
-        'USER': 'root', # docker-compose.ymlで設定したMySQLのユーザー名
-        'PASSWORD': 'secret', # docker-compose.yml設定したMySQLのパスワード
-        'HOST':'ugosite-data',# docker-compose.yml設定したMySQLのhost名
-        'OPTIONS': {
-            'charset': 'utf8mb4', # 日本語に対応させる
-        },
-    }
+    # 'default': { # mysql
+    #     'ENGINE': 'django.db.backends.mysql', 
+    #     'NAME': 'ugosites', # プロジェクトで使用するデータベース名
+    #     'USER': 'root', # docker-compose.ymlで設定したMySQLのユーザー名
+    #     'PASSWORD': 'secret', # docker-compose.yml設定したMySQLのパスワード
+    #     'HOST':'ugosite-data',# docker-compose.yml設定したMySQLのhost名
+    #     'OPTIONS': {
+    #         'charset': 'utf8mb4', # 日本語に対応させる
+    #     },
+    # }
 }
 
 # Password validation
