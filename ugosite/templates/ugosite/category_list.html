@@ -6,14 +6,23 @@
 
 
 
-{% block content %}
+{% block folders %}
   <h4>単元から</h4>
-  {% include "ugosite/category_list/categorys.html" with categorys=category_list %}
+
+  <ul>
+    {% for category in category_list %}
+    <li class="folder linkdiv" itemid="{{ category.id }}">
+      <a href="#">
+        {{ category }}
+      </a>
+      {% include "ugosite/category_list/subjects.html" with model=category %}
+    </li>
+    {% endfor %}
+  </ul>
+
 {% endblock %}
 
 {% block scripts %}
-  {% for category in categorys %}
-    {% include "category_system.html" with model=category %}
-  {% endfor %}
+  {% include "category_system.html" with model=category %}
 {% endblock %}
 

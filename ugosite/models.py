@@ -139,6 +139,9 @@ class Article(models.Model):
 
     def get_absolute_url(self):
         return reverse('article-detail', args=[str(self.id)])
+    
+    def html(self):
+        return "articles/%s.html" % self.name
 
     def __str__(self):
         return self.name

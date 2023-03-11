@@ -11,8 +11,10 @@
   <link rel="stylesheet" href="{% static 'css/page-links.css' %}">
 
   <!-- JSXgraph -->
-  <link rel="stylesheet" type="text/css" href="https://jsxgraph.org/distrib/jsxgraph.css" />
-  <script type="text/javascript" src="https://jsxgraph.org/distrib/jsxgraphcore.js"></script>
+  {% comment %} <link rel="stylesheet" type="text/css" href="https://jsxgraph.org/distrib/jsxgraph.css" />
+  <script type="text/javascript" src="https://jsxgraph.org/distrib/jsxgraphcore.js"></script> {% endcomment %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/jsxgraph.css' %}" />
+  <script type="text/javascript" charset="UTF-8" src="{% static 'js/jsxgraphsrc.js'%}"></script>
 
   <!-- MathJax -->
   <script>

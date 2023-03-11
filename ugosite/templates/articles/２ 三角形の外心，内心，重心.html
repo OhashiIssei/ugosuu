@@ -1,0 +1,13 @@
+<div style="height:500px"></div>
+
+<div id="box" class="jxgbox" style="width:400px; height:400px; background:hsl(0, 0%, 15%)"></div>
+  {% load static %}
+  <script type="text/javascript" src="{% static 'js/base.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/ugosuu/drawCircumferenceAngle.js' %}"></script>
+
+  <script type="text/javascript" >
+    board = base_board("box")
+    board.drawCircumferenceAngle()
+  </script>
+
+<div style="height:500px"></div>
